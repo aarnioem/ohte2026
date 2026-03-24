@@ -2,6 +2,10 @@
 
 Harjoitustyön aiheena on _japanilainen mahjong_, eli **riichi mahjong** peli.
 
+[Määrittelydokumentti](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/requirements.md)  
+[Tuntikirjanpito](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/tuntikirjanpito.md)
+
+
 ## Laskarit
 [Hakemisto](https://github.com/aarnioem/ohte2026/tree/main/laskarit)
 
