@@ -1,4 +1,4 @@
-from hand import Hand
+from core.hand import Hand
 
 class Player:
     """
@@ -12,8 +12,13 @@ class Player:
         self.score = 25000
         self.riichi = False
 
-    def receive_tile(self):
-        pass
+    def is_human(self):
+        return self.human
 
-    def discard(self):
-        pass
+    def receive_tile(self, tile_id):
+        self.hand.add_tile(tile_id)
+
+    def discard(self, tile):
+        tile = self.hand.remove_tile(tile)
+        self.discards.append(tile)
+        return tile

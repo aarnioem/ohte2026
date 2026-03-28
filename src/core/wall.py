@@ -20,9 +20,16 @@ class Wall:
         self.tiles = generate_wall_tiles()
         self.draw_pointer = 0
 
+    def live_tiles(self):
+        return TOTAL_TILES - self.draw_pointer - DEAD_WALL_SIZE
+
     def draw_tile(self):
         """Draws one tile from the wall.
         Returns the tile ID and increments the draw pointer"""
+
+        if self.live_tiles() <= 0:
+            raise IndexError("No tiles left in the wall")
+
         tile = self.tiles[self.draw_pointer] # add some error checking here
         self.draw_pointer += 1
         return tile

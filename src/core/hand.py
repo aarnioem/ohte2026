@@ -4,7 +4,12 @@ class Hand:
         self.melds = []
 
     def add_tile(self, tile):
-        pass
+        self.tiles.append(tile)
+        self.tiles.sort()
 
     def remove_tile(self, tile):
-        pass
+        if tile not in self.tiles:
+            raise ValueError(f"Tile {tile} is not in hand")
+
+        self.tiles.remove(tile)
+        return tile
