@@ -3,3 +3,4 @@
 - created Hand, Player and Wall classes
 - created a RoundManager class for handling the game logic for one round
 - created a simple CLI
+- tested that Hand class works correctly
