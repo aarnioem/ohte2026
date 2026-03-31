@@ -10,14 +10,16 @@ class CLI:
 # This rendering method turned out to be really difficult to read in the terminal.
 # Clean this up later.
 
-    def render(self, event: dict):
+    def render(self, event: dict, player: Player):
         """Render a single round event"""
         event_type = event.get("type")
 
         if event_type == "draw":
-            if "tile" in event:
+            if "tile" in event and player.is_human():
                 tile = self._tile_to_text(event["tile"])
                 print(f"Player {event['player']} draws {tile}")
+            elif "tile" in event:
+                print(f"Player {event['player']} draws a tile")
             else:
                 print("No live tiles left. Exhaustive draw!")
             return
@@ -40,9 +42,9 @@ class CLI:
 
     # I need to sort this out so I can just choose an index or a tile instead of the tile_id.
     def get_discard_choice(self, player: Player):
-        self._print_hand(player)
 
         if player.is_human():
+            self._print_hand(player)
             while True:
                 try:
                     choice = int(input("Choose discard tile id: "))

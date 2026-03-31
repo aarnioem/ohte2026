@@ -28,7 +28,7 @@ class RoundManager:
 
         while True:
             event = self.next_phase()
-            self.ui.render(event)
+            self.ui.render(event, self._current_player())
 
             if self.round_phase == self.PHASE_END:
                 return
