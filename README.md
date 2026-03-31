@@ -3,10 +3,10 @@
 Harjoitustyön aiheena on _japanilainen mahjong_, eli **riichi mahjong** peli.
 
 
-### Dokumentaatio
+## Dokumentaatio
 
 [Määrittelydokumentti](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/requirements.md)  
-[Tuntikirjanpito](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/tuntikirjanpito.md)
+[Tuntikirjanpito](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/tuntikirjanpito.md)  
 [Changelog](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/changelog.md)
 
 ### Pelin asentaminen
