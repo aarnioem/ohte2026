@@ -16,7 +16,6 @@ def main():
     game = RoundManager(players, ui)
     game.play_round()
 
-    return
 
 if __name__ == "__main__":
     main()

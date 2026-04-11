@@ -1,4 +1,4 @@
-class Hand:    
+class Hand:
     def __init__(self):
         self.tiles = []
         self.melds = []
