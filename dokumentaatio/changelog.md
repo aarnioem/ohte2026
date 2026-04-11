@@ -8,3 +8,4 @@
 ### week 4
 
 - discarding changed to work by index, improved UI
+- implemented tsumo and scoring using the mahjong library
