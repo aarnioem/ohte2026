@@ -8,4 +8,5 @@
 | 28.3. | 7    | Hand, player ja wall luokkien alustava toteutus. RoundManager luokan alustava toteutus. CLI toteutus (tähän käytin hieman AI:ta). Hyvin minimaalinen toimiva ohjelma. |
 | 30.3. | 3    | Invoke taskit projektille. Paremman ohjelman rakenteen pohdintaa. Changelog. Hand luokan testit. |
 | 31.3. | 1    | UI:n säätöä, testeille invoke testi, ohjeiden kirjoitusta.|
-| yht   | 16   | |
+| 11.4. | 1    | UI:n parantelua, lint taski. |
+| yht   | 17   | |
