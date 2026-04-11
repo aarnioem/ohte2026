@@ -40,17 +40,16 @@ class CLI:
         print(f"Unknown event: {event}")
 
 
-    # I need to sort this out so I can just choose an index or a tile instead of the tile_id.
     def get_discard_choice(self, player: Player):
 
         if player.is_human():
             self._print_hand(player)
             while True:
                 try:
-                    choice = int(input("Choose discard tile id: "))
-                    if choice in player.hand.tiles:
-                        return choice
-                    print("That tile is not in your hand.")
+                    choice = int(input("Choose discard index: "))
+                    if 0 <= choice < len(player.hand.tiles):
+                        return player.hand.tiles[choice]
+                    print("Index out of range.")
 
                 except ValueError:
                     print("Please input a valid number")
@@ -61,7 +60,10 @@ class CLI:
 # AI GENERATED CODE STARTS
 
     def _print_hand(self, player: Player):
-        tiles = " ".join(self._tile_to_text(t) for t in player.hand.tiles)
+        tiles = " ".join(
+            f"{index}:{self._tile_to_text(tile)}"
+            for index, tile in enumerate(player.hand.tiles)
+        )
         print(f"Player hand: {tiles}")
 
     def _tile_to_text(self, tile_id: int):
