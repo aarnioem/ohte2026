@@ -22,6 +22,10 @@ class CLI:
             self._render_discard(event)
             return
 
+        if event_type == "tsumo":
+            self._render_tsumo(event)
+            return
+
         if event_type == "calls":
             self._render_calls()
             return
@@ -50,6 +54,15 @@ class CLI:
         print(f"Player {event['player']} discards {tile}")
         print()
 
+    def _render_tsumo(self, event):
+        self._separator("TSUMO")
+        tile = self._tile_to_text(event["tile"])
+        han = event.get("han")
+        fu = event.get("fu")
+
+        print(f"Player {event['player']} declares tsumo with {tile} ({han} han, {fu} fu)")
+        print()
+
     def _render_calls(self):
         self._separator("CALLS")
         print("No calls. Next player.")
@@ -76,6 +89,23 @@ class CLI:
                     print("Please input a valid number")
         else:
             return random.choice(player.hand.tiles)
+
+    def get_tsumo_choice(self, player: Player, drawn_tile: int):
+        if not player.is_human():
+            return random.choice([True, False])
+
+        while True:
+            self._separator("TSUMO")
+            print(f"You drew {self._tile_to_text(drawn_tile)}")
+            self._print_hand(player)
+            choice = input("Tsumo? (y/n): ").strip().lower()
+            if choice in ("y", "yes"):
+                print()
+                return True
+            if choice in ("n", "no"):
+                print()
+                return False
+            print("Please choose y or n.")
 
 
 # AI GENERATED CODE STARTS

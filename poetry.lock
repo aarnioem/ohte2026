@@ -200,6 +200,18 @@ files = [
 colors = ["colorama"]
 
 [[package]]
+name = "mahjong"
+version = "2.0.0"
+description = "Mahjong hands calculation"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "mahjong-2.0.0-py3-none-any.whl", hash = "sha256:52f63a8dfda5a9e81542642ed315f0e1e8626c0d324c8d8eabb3418ae7d43870"},
+    {file = "mahjong-2.0.0.tar.gz", hash = "sha256:08c424be257d6aebdf320e90fd8ee11628bf7a463860490ad007162bb62f22be"},
+]
+
+[[package]]
 name = "mccabe"
 version = "0.7.0"
 description = "McCabe checker, plugin for flake8"
@@ -328,4 +340,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "6a10b91fda3a78794f7b0e5127fa109b2aa7e6698cd89558beb56a74d3dfc512"
+content-hash = "44a10430679da51dc9981fd17c8dbd62837476fb9284484756c045b893244017"
