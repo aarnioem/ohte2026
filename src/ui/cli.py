@@ -15,39 +15,60 @@ class CLI:
         event_type = event.get("type")
 
         if event_type == "draw":
-            if "tile" in event and player.is_human():
-                tile = self._tile_to_text(event["tile"])
-                print(f"Player {event['player']} draws {tile}")
-            elif "tile" in event:
-                print(f"Player {event['player']} draws a tile")
-            else:
-                print("No live tiles left. Exhaustive draw!")
+            self._render_draw(event, player)
             return
 
         if event_type == "discard":
-            tile = self._tile_to_text(event["tile"])
-            print(f"Player {event['player']} discards {tile}")
+            self._render_discard(event)
             return
 
         if event_type == "calls":
-            print("No calls. Next player.")
+            self._render_calls()
             return
 
         if event_type == "end":
-            print("Round ended.")
+            self._render_end()
             return
 
         print(f"Unknown event: {event}")
 
+    def _render_draw(self, event, player):
+        self._separator("DRAW")
+        if "tile" in event and player.is_human():
+            tile = self._tile_to_text(event["tile"])
+            print(f"Player {event['player']} draws {tile}")
+
+        elif "tile" in event:
+            print(f"Player {event['player']} draws a tile")
+        else:
+            print("No live tiles left. Exhaustive draw!")
+        print()
+
+    def _render_discard(self, event):
+        self._separator("DISCARD")
+        tile = self._tile_to_text(event["tile"])
+        print(f"Player {event['player']} discards {tile}")
+        print()
+
+    def _render_calls(self):
+        self._separator("CALLS")
+        print("No calls. Next player.")
+        print()
+
+    def _render_end(self):
+        self._separator("END")
+        print("Round ended.")
+        print()
 
     def get_discard_choice(self, player: Player):
-
         if player.is_human():
+            self._separator("CHOOSE DISCARD")
             self._print_hand(player)
             while True:
                 try:
                     choice = int(input("Choose discard index: "))
                     if 0 <= choice < len(player.hand.tiles):
+                        print()
                         return player.hand.tiles[choice]
                     print("Index out of range.")
 
@@ -60,11 +81,13 @@ class CLI:
 # AI GENERATED CODE STARTS
 
     def _print_hand(self, player: Player):
-        tiles = " ".join(
-            f"{index}:{self._tile_to_text(tile)}"
-            for index, tile in enumerate(player.hand.tiles)
-        )
-        print(f"Player hand: {tiles}")
+        col_width = 4  # enough for 'Wh' etc.
+
+        indexes = [str(i).ljust(col_width) for i in range(len(player.hand.tiles))]
+        tiles = [self._tile_to_text(t).ljust(col_width) for t in player.hand.tiles]
+
+        print("Index:", "".join(indexes))
+        print("Tile: ", "".join(tiles))
 
     def _tile_to_text(self, tile_id: int):
         # 136-id -> 34-index (ignore copy)
@@ -72,15 +95,23 @@ class CLI:
 
         if tile34 < 9:
             value = tile34 + 1
-            return f"{value}m[{tile_id}]"
+            return f"{value}m"
         if tile34 < 18:
             value = tile34 - 9 + 1
-            return f"{value}p[{tile_id}]"
+            return f"{value}p"
         if tile34 < 27:
             value = tile34 - 18 + 1
-            return f"{value}s[{tile_id}]"
+            return f"{value}s"
 
         honors = ["E", "S", "W", "N", "Wh", "G", "R"]
-        return f"{honors[tile34 - 27]}[{tile_id}]"
+        return f"{honors[tile34 - 27]}"
+
+    def _separator(self, label: str = "", width: int = 36):
+        if label:
+            text = f" {label} "
+            line = text.center(width, "-")
+        else:
+            line = "-" * width
+        print(line)
 
 # AI GENERATED CODE ENDS
