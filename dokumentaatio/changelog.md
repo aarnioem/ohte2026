@@ -9,3 +9,4 @@
 
 - discarding changed to work by index, improved UI
 - implemented tsumo and scoring using the mahjong library
+- Ron implementation, multiple ron are currently missing, but that is incredibly rare in the game.
