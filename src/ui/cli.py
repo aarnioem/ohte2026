@@ -26,6 +26,10 @@ class CLI:
             self._render_tsumo(event)
             return
 
+        if event_type == "ron":
+            self._render_ron(event)
+            return
+
         if event_type == "calls":
             self._render_calls()
             return
@@ -66,6 +70,16 @@ class CLI:
 
         print(f"Player {event['player']} declares tsumo with {tile} ({han} han, {fu} fu)")
         print()
+
+    def _render_ron(self, event):
+        self._separator("RON")
+        tile = self._tile_to_text(event["tile"])
+        han = event.get("han")
+        fu = event.get("fu")
+
+        print(f"Player {event['player']} declares ron with {tile} ({han} han, {fu} fu)")
+        print()
+
 
     def _render_calls(self):
         self._separator("CALLS")

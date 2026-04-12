@@ -1,6 +1,6 @@
 from core.player import Player
 from core.wall import Wall
-from core.scoring import can_tsumo
+from core.scoring import can_tsumo, can_ron
 from ui.cli import CLI
 
 
@@ -21,6 +21,9 @@ class RoundManager:
         self.players = players
         self.ui = ui
         self.turn_pointer = 0
+
+        self.last_discard = None
+        self.last_player_index = None
 
         self.wall = Wall()
         self.round_phase = self.PHASE_START
@@ -117,6 +120,8 @@ class RoundManager:
         tile = self.ui.get_discard_choice(player)
 
         player.discard(tile)
+        self.last_discard = tile
+        self.last_player_index = self.turn_pointer
 
         self.round_phase = self.PHASE_CALLS
 
@@ -128,7 +133,37 @@ class RoundManager:
         }
 
     def _calls_phase(self) -> dict:
-        """Calls are unimplemented for now but this is necessary for game flow"""
+        """Only ron currently"""
+        if self.last_discard is None:
+            return {"type": "calls"}
+
+        for offset in range(1, 4):
+            player_index = (offset + self.turn_pointer) % 4
+            ron_player = self.players[player_index]
+
+            ron_available, result = can_ron(
+                ron_player.hand.tiles,
+                self.last_discard,
+                ron_player.riichi
+            )
+
+            han = None
+            fu = None
+
+            if result is not None:
+                han = result.han
+                fu = result.fu
+
+            if ron_available and self.ui.get_ron_choice(ron_player, self.last_discard):
+                self.round_phase = self.PHASE_END
+                return {
+                    "type": "ron",
+                    "player": player_index,
+                    "tile": self.last_discard,
+                    "han": han,
+                    "fu": fu,
+                }
+
         self.round_phase = self.PHASE_DRAW
         self.turn_pointer += 1
         self.turn_pointer %= 4
