@@ -96,7 +96,7 @@ class CLI:
 
     def get_tsumo_choice(self, player: Player, drawn_tile: int):
         if not player.is_human():
-            return random.choice([True, False])
+            return True
 
         while True:
             self._separator("TSUMO")
@@ -111,6 +111,22 @@ class CLI:
                 return False
             print("Please choose y or n.")
 
+    def get_ron_choice(self, player: Player, discarded_tile: int):
+        if not player.is_human():
+            return True
+
+        while True:
+            self._separator("RON")
+            print(f"You can ron on {self._tile_to_text(discarded_tile)}")
+            self._print_hand(player)
+            choice = input("Ron? (y/n): ").strip().lower()
+            if choice in ("y", "yes"):
+                print()
+                return True
+            if choice in ("n", "no"):
+                print()
+                return False
+            print("Please choose y or n.")
 
 # AI GENERATED CODE STARTS
 
