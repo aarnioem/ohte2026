@@ -9,4 +9,5 @@
 | 30.3. | 3    | Invoke taskit projektille. Paremman ohjelman rakenteen pohdintaa. Changelog. Hand luokan testit. |
 | 31.3. | 1    | UI:n säätöä, testeille invoke testi, ohjeiden kirjoitusta.|
 | 11.4. | 7    | UI:n parantelua, lint taski (1h). Tsumo ja pisteytys mahjong kirjastolla (6h)|
-| yht   | 23   | |
+| 12.4. | 1    | Luokkakaavion tekoa. |
+| yht   | 24   | |
