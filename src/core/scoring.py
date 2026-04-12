@@ -35,11 +35,11 @@ def can_ron(tiles_136, discarded_tile, riichi=False):
     if len(tiles_136) != 13:
         return (False, None)
 
-    tiles = sorted(tiles_136)
+    tiles = sorted(tiles_136 + [discarded_tile])
     win_tile = discarded_tile
 
     calculator = HandCalculator()
-    config = HandConfig(is_tsumo=True, is_riichi=riichi)
+    config = HandConfig(is_tsumo=False, is_riichi=riichi)
 
     result = calculator.estimate_hand_value(
         tiles=tiles,
