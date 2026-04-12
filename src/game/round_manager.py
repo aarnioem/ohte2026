@@ -1,3 +1,4 @@
+from core.player import Player
 from core.wall import Wall
 from core.scoring import can_tsumo
 from ui.cli import CLI
@@ -50,7 +51,7 @@ class RoundManager:
         return {"type": "unknown/error"}
 
 
-    def _current_player(self):
+    def _current_player(self) -> Player:
         return self.players[self.turn_pointer]
 
     def _start_round(self):
@@ -84,6 +85,7 @@ class RoundManager:
         tile = self.wall.draw_tile()
         player.receive_tile(tile)
 
+        # maybe make the tsumo check into a function for readability later
         tsumo_available, result = can_tsumo(player.hand.tiles, tile, player.riichi)
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
@@ -121,7 +123,8 @@ class RoundManager:
         return {
             "type": "discard",
             "player": self.turn_pointer,
-            "tile": tile
+            "tile": tile,
+            "player_discards": player.discards
         }
 
     def _calls_phase(self) -> dict:

@@ -52,6 +52,10 @@ class CLI:
         self._separator("DISCARD")
         tile = self._tile_to_text(event["tile"])
         print(f"Player {event['player']} discards {tile}")
+        self._render_player_discards(
+            event.get("player"),
+            event.get("player_discards", [])
+        )
         print()
 
     def _render_tsumo(self, event):
@@ -143,5 +147,14 @@ class CLI:
         else:
             line = "-" * width
         print(line)
+
+    def _render_player_discards(self, player_index, discards):
+        if player_index is None:
+            return
+
+        tiles = " ".join(self._tile_to_text(tile) for tile in discards)
+        if not tiles:
+            tiles = "-"
+        print(f"P{player_index} discards: {tiles}")
 
 # AI GENERATED CODE ENDS
