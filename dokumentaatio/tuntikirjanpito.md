@@ -10,4 +10,5 @@
 | 31.3. | 1    | UI:n säätöä, testeille invoke testi, ohjeiden kirjoitusta.|
 | 11.4. | 7    | UI:n parantelua, lint taski (1h). Tsumo ja pisteytys mahjong kirjastolla (6h)|
 | 12.4. | 3    | Luokkakaavion tekoa. Ron toteutus|
-| yht   | 26   | |
+| 13.4. | 3    | Refaktorointia, testejä pisteytykselle, round_managerin testauksen suunnittelua. Koodin laadun parantamisen suunnittelua (kapselointi, riippuvuuksien injektointi) |
+| yht   | 29   | |
