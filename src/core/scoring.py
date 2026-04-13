@@ -1,7 +1,8 @@
 from mahjong.hand_calculating.hand import HandCalculator
 from mahjong.hand_calculating.hand_config import HandConfig
 
-# AI has been used lot of the scoring functions, but it would be difficult to mark each part separately here.
+# AI has been used lot of the scoring functions,
+# but it would be difficult to mark each part separately here.
 
 
 def calculate_win(tiles_136, win_tile, is_tsumo, riichi=False):
