@@ -1,0 +1,55 @@
+import unittest
+import pytest
+from core.scoring import can_tsumo, can_ron, calculate_win
+
+
+# TSUMO
+
+def test_can_tsumo_is_false_with_too_few_tiles():
+    tiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]  # 13 tiles
+
+    can_win, result = can_tsumo(tiles, 13)
+
+    assert can_win is False
+    assert result is None
+
+
+def test_can_closed_tsumo_with_no_other_yaku():
+    # 123m 234p 456p 789s WW
+    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 104, 116, 117]
+
+    can_win, result = can_tsumo(tiles, 117)
+
+    assert can_win is True
+    assert result is not None and result.han == 1
+
+
+# RON
+
+def test_can_ron_is_false_with_too_few_tiles():
+    tiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # 12 tiles
+    can_win, result = can_ron(tiles, 12)
+
+    assert can_win is False
+    assert result is None
+
+
+def test_can_ron_with_no_yaku_returns_false():
+    # 123m 234p 456p 789s WW
+    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 104, 116]
+
+    can_win, result = can_ron(tiles, 117)
+
+    assert can_win is False
+    assert result is not None and result.han is None
+
+
+def test_calculate_win_tsumo_with_valid_hand():
+    # 111m 111p 111s 789s SS
+    # tsumo 1 han, chanta 2 han, sanankou 2 han, sanshoku doukou 2 han = 7 han
+    tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112, 113]
+
+    result = calculate_win(tiles, 113, True)
+
+    assert result.error is None
+    assert result.han == 7
