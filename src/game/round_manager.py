@@ -17,7 +17,7 @@ class RoundManager:
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
 
-    def __init__(self, players, ui: CLI):
+    def __init__(self, players, ui: CLI, wall: Wall):
         self.players = players
         self.ui = ui
         self.turn_pointer = 0
@@ -25,7 +25,7 @@ class RoundManager:
         self.last_discard = None
         self.last_player_index = None
 
-        self.wall = Wall()
+        self.wall = wall
         self.round_phase = self.PHASE_START
 
     def play_round(self):
@@ -53,9 +53,11 @@ class RoundManager:
 
         return {"type": "unknown/error"}
 
-
     def _current_player(self) -> Player:
         return self.players[self.turn_pointer]
+
+    def advance_turn(self):
+        self.turn_pointer = (self.turn_pointer + 1) % len(self.players)
 
     def _start_round(self):
         self.round_phase = self.PHASE_DEALING
@@ -82,14 +84,14 @@ class RoundManager:
             return {
                 "type": "draw",
                 "player": self.turn_pointer,
-                }
-
+            }
 
         tile = self.wall.draw_tile()
         player.receive_tile(tile)
 
         # maybe make the tsumo check into a function for readability later
-        tsumo_available, result = can_tsumo(player.hand.tiles, tile, player.riichi)
+        tsumo_available, result = can_tsumo(
+            player.hand.tiles, tile, player.riichi)
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
 
@@ -112,7 +114,7 @@ class RoundManager:
             "type": "draw",
             "player": self.turn_pointer,
             "tile": tile
-            }
+        }
 
     def _discard_phase(self) -> dict:
         player = self._current_player()
@@ -165,8 +167,7 @@ class RoundManager:
                 }
 
         self.round_phase = self.PHASE_DRAW
-        self.turn_pointer += 1
-        self.turn_pointer %= 4
+        self.advance_turn()
 
         return {"type": "calls"}
 

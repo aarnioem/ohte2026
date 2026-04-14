@@ -1,5 +1,6 @@
 from game.round_manager import RoundManager
 from core.player import Player
+from core.wall import Wall
 from ui.cli import CLI
 
 def main():
@@ -13,7 +14,7 @@ def main():
 
     players = [player1, player2, player3, player4]
 
-    game = RoundManager(players, ui)
+    game = RoundManager(players, ui, Wall())
     game.play_round()
 
 
