@@ -17,7 +17,7 @@ class RoundManager:
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
 
-    def __init__(self, players, ui: CLI, wall: Wall):
+    def __init__(self, players, ui, wall: Wall):
         self.players = players
         self.ui = ui
         self.turn_pointer = 0
@@ -79,19 +79,40 @@ class RoundManager:
 
     def _draw_phase(self) -> dict:
         player = self._current_player()
+        tile, end_event = self._draw_tile_or_end(player)
+        if end_event is not None:
+            return end_event
+
+        if tile is None:
+            raise RuntimeError("Tile shouldn't ever be none after a draw")
+
+        tsumo_event = self._try_tsumo(player, tile)
+        if tsumo_event is not None:
+            return tsumo_event
+
+        self.round_phase = self.PHASE_DISCARD
+        return {
+            "type": "draw",
+            "player": self.turn_pointer,
+            "tile": tile
+        }
+
+
+    def _draw_tile_or_end(self, player: Player):
         if self.wall.live_tiles() <= 0:
             self.round_phase = self.PHASE_END
-            return {
+            return None, {
                 "type": "draw",
                 "player": self.turn_pointer,
             }
 
         tile = self.wall.draw_tile()
         player.receive_tile(tile)
+        return tile, None
 
-        # maybe make the tsumo check into a function for readability later
-        tsumo_available, result = can_tsumo(
-            player.hand.tiles, tile, player.riichi)
+
+    def _try_tsumo(self, player: Player, tile: int):
+        tsumo_available, result = can_tsumo(player.hand.tiles, tile, player.riichi)
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
 
@@ -108,13 +129,8 @@ class RoundManager:
                 "han": han,
                 "fu": fu,
             }
+        return None
 
-        self.round_phase = self.PHASE_DISCARD
-        return {
-            "type": "draw",
-            "player": self.turn_pointer,
-            "tile": tile
-        }
 
     def _discard_phase(self) -> dict:
         player = self._current_player()
@@ -134,6 +150,8 @@ class RoundManager:
             "player_discards": player.discards
         }
 
+
+    # This needs a similar refactor as drawa phase
     def _calls_phase(self) -> dict:
         """Only ron currently"""
         if self.last_discard is None:
