@@ -6,22 +6,31 @@ RED_FIVE_IDS = {16, 52, 88}
 
 def generate_wall_tiles():
     """
-    Returns a list of 136 tile IDs and shuffles it.
+    Returns a list of 136 tile IDs.
     """
-    wall = list(range(TOTAL_TILES))
-    random.shuffle(wall)
-    return wall
+    tiles = list(range(TOTAL_TILES))
+    return tiles
 
 class Wall:
     """
     Representation for the 136 tile wall.
     """
-    def __init__(self) -> None:
-        self.tiles = generate_wall_tiles()
+    def __init__(self, tiles=None, shuffle=True, dead_wall_size=14) -> None:
+        if tiles is None:
+            self.tiles = generate_wall_tiles()
+        else:
+            self.tiles = list(tiles)
+
+        self.total_tiles = len(self.tiles)
+        self.dead_wall_size = dead_wall_size
+
+        if shuffle:
+            random.shuffle(self.tiles)
+
         self.draw_pointer = 0
 
     def live_tiles(self):
-        return TOTAL_TILES - self.draw_pointer - DEAD_WALL_SIZE
+        return self.total_tiles - self.draw_pointer - self.dead_wall_size
 
     def draw_tile(self):
         """Draws one tile from the wall.
