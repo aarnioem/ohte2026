@@ -1,3 +1,5 @@
+from melds import Meld
+
 class Hand:
     def __init__(self):
         self.tiles = []
@@ -16,3 +18,12 @@ class Hand:
 
         self.tiles.remove(tile)
         return tile
+
+    def can_pon(self, discard_tile):
+        pass
+
+    def can_chii(self, discard_tile):
+        pass
+
+    def can_open_kan(self, discard_tile):
+        pass
