@@ -1,4 +1,4 @@
-from melds import Meld
+from core.melds import Meld
 
 class Hand:
     def __init__(self):
