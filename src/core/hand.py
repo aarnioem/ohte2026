@@ -117,3 +117,15 @@ class Hand:
         """
         discard34 = self._tile34(discard_tile)
         return self._tile34_counts().get(discard34, 0) >= 3
+
+
+    def apply_pon(self):
+        pass
+
+
+    def apply_kan(self):
+        pass
+
+
+    def apply_chii(self):
+        pass
