@@ -12,4 +12,5 @@
 | 12.4. | 3    | Luokkakaavion tekoa. Ron toteutus|
 | 13.4. | 3    | Refaktorointia, testejä pisteytykselle, round_managerin testauksen suunnittelua. Koodin laadun parantamisen suunnittelua (kapselointi, riippuvuuksien injektointi) |
 | 14.4. | 4    | Luokkakaavio. RoundManager refaktorointia, wall luokasta testattavampi. Ensimmäisiä testejä RoundManager luokalle |
-| yht   | 33   | |
+| 19.4. | 2    | Pon/Kan/Chii suunnittelua ja toteutuksen aloitus. Uusi Meld luokka, lisää tarpeellisia metodeja Hand luokalle. |
+| yht   | 35   | |
