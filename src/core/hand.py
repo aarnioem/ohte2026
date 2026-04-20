@@ -5,6 +5,8 @@ class Hand:
         self.tiles = []
         self.melds = []
 
+    def tile_amount(self):
+        return len(self.tiles)
 
     def add_tile(self, tile):
         if tile in self.tiles:

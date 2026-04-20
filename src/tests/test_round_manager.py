@@ -42,3 +42,29 @@ class TestRoundManager(unittest.TestCase):
         self.game = RoundManager(self.players, StubUI(), Wall(tiles=[], shuffle=False, dead_wall_size=0))
         self.game._draw_phase()
         self.assertEqual(self.game.round_phase, self.game.PHASE_END)
+
+
+    def test_start_round_deals_correct_amount_of_tiles_to_players(self):
+        self.game._start_round()
+        player0 = self.game.players[0]
+        player1 = self.game.players[1]
+        player2 = self.game.players[2]
+        player3 = self.game.players[3]
+        self.assertEqual(player0.hand.tile_amount(), 13)
+        self.assertEqual(player1.hand.tile_amount(), 13)
+        self.assertEqual(player2.hand.tile_amount(), 13)
+        self.assertEqual(player3.hand.tile_amount(), 13)
+
+
+    def test_start_round_ends_in_draw_phase(self):
+        self.game._start_round()
+        self.assertEqual(self.game.round_phase, self.game.PHASE_DRAW)
+
+    def test_draw_phase_returns_correct_draw_event(self):
+        wall = Wall(tiles=[55], shuffle=False, dead_wall_size=0)
+        game = RoundManager(self.players, StubUI, wall)
+
+        event = game._draw_phase()
+        self.assertEqual(event["type"], "draw")
+        self.assertEqual(event["tile"], 55)
+
