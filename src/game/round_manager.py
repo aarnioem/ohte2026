@@ -16,7 +16,7 @@ class RoundManager:
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
 
-    def __init__(self, players, ui, wall: Wall):
+    def __init__(self, players: list[Player], ui, wall: Wall):
         self.players = players
         self.ui = ui
         self.turn_pointer = 0
@@ -160,8 +160,13 @@ class RoundManager:
         if ron_event is not None:
             return ron_event
 
+        pon_kan_event = self._resolve_pon_kan_calls()
+        if pon_kan_event is not None:
+            return pon_kan_event
+
         self.round_phase = self.PHASE_DRAW
         self.advance_turn()
+        self._clear_last_discard_state()
 
         return {"type": "calls"}
 
@@ -184,17 +189,58 @@ class RoundManager:
                 fu = result.fu
 
             if ron_available and self.ui.get_ron_choice(ron_player, self.last_discard):
+                winning_tile = self.last_discard
                 self.round_phase = self.PHASE_END
+                self._clear_last_discard_state()
                 return {
                     "type": "ron",
                     "player": player_index,
-                    "tile": self.last_discard,
+                    "tile": winning_tile,
                     "han": han,
                     "fu": fu,
                 }
 
         return None
 
+    def _resolve_pon_kan_calls(self):
+        for offset in range(1, 4):
+            player_index = (offset + self.turn_pointer) % 4
+            pon_kan_player = self.players[player_index]
+
+            if pon_kan_player.hand.can_open_kan(self.last_discard):
+                if self.ui.get_kan_choice(pon_kan_player, self.last_discard):
+                    called_tile = self.last_discard
+                    pon_kan_player.hand.apply_kan(self.last_discard, self.last_player_index)
+                    self.turn_pointer = player_index
+                    self.round_phase = self.PHASE_DISCARD
+                    self._clear_last_discard_state()
+                    return {
+                        "type": "kan",
+                        "player": player_index,
+                        "tile": called_tile,
+                    }
+
+            if pon_kan_player.hand.can_pon(self.last_discard):
+                if self.ui.get_pon_choice(pon_kan_player, self.last_discard):
+                    called_tile = self.last_discard
+                    pon_kan_player.hand.apply_pon(self.last_discard, self.last_player_index)
+                    self.turn_pointer = player_index
+                    self.round_phase = self.PHASE_DISCARD
+                    self._clear_last_discard_state()
+                    return {
+                        "type": "pon",
+                        "player": player_index,
+                        "tile": called_tile,
+                    }
+
+        return None
+
+
+# AI GENERATED (instances of this elsewhere in the code were recommended by AI as well)
+    def _clear_last_discard_state(self):
+        self.last_discard = None
+        self.last_player_index = None
+# AI GENERATED ENDS
 
     def _end_phase(self) -> dict:
         return {"type": "end"}

@@ -142,6 +142,44 @@ class CLI:
                 return False
             print("Please choose y or n.")
 
+    def get_pon_choice(self, player: Player, discarded_tile: int):
+        if not player.is_human():
+            return False
+
+        while True:
+            self._separator("PON")
+            print(f"You can pon on {self._tile_to_text(discarded_tile)}")
+            self._print_hand(player)
+            choice = input("Call pon? (y/n): ").strip().lower()
+            if choice in ("y", "yes"):
+                print()
+                return True
+            if choice in ("n", "no"):
+                print()
+                return False
+            print("Please choose y or n.")
+
+    def get_kan_choice(self, player: Player, discarded_tile: int):
+        if not player.is_human():
+            return False
+
+        while True:
+            self._separator("KAN")
+            print(f"You can kan on {self._tile_to_text(discarded_tile)}")
+            self._print_hand(player)
+            choice = input("Call kan? (y/n): ").strip().lower()
+            if choice in ("y", "yes"):
+                print()
+                return True
+            if choice in ("n", "no"):
+                print()
+                return False
+            print("Please choose y or n.")
+
+    def get_chii_choice(self):
+        pass
+
+
 # AI GENERATED CODE STARTS
 
     def _print_hand(self, player: Player):
