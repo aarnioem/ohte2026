@@ -88,6 +88,22 @@ class Hand:
 
 
 # AI GENERATED CODE STARTS
+
+    def get_chii_options(self, discard_tile):
+        """Returns options for different chii shapes"""
+
+        discard34 = self._tile34(discard_tile)
+        options = []
+
+        for a, b in self._available_chii_patterns(discard34):
+            option = [
+                self._first_tile_by_tile34(a),
+                self._first_tile_by_tile34(b),
+            ]
+            options.append(option)
+
+        return options
+
     def _remove_n_by_tile34(self, tile34, amount):
         removed = []
 
@@ -102,6 +118,14 @@ class Hand:
             raise ValueError(f"Could not remove {amount} tiles of type {tile34}")
 
         return removed
+
+
+    def _first_tile_by_tile34(self, tile34):
+        for tile in self.tiles:
+            if self._tile34(tile) == tile34:
+                return tile
+
+        raise ValueError(f"Tile type {tile34} not found in hand")
 
 
     def _chii_patterns(self, discard34):

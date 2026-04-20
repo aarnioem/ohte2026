@@ -156,7 +156,7 @@ class RoundManager:
 
 
     def _calls_phase(self) -> dict:
-        """Only ron currently"""
+        """Resolve calls in priority order: ron -> kan/pon -> chii."""
         if self.last_discard is None:
             return {"type": "calls"}
 
@@ -167,6 +167,10 @@ class RoundManager:
         pon_kan_event = self._resolve_pon_kan_calls()
         if pon_kan_event is not None:
             return pon_kan_event
+
+        chii_event = self._resolve_chii_calls()
+        if chii_event is not None:
+            return chii_event
 
         self.round_phase = self.PHASE_DRAW
         self.advance_turn()
@@ -239,6 +243,41 @@ class RoundManager:
                     }
 
         return None
+
+
+    def _resolve_chii_calls(self):
+        if self.last_discard is None or self.last_player_index is None:
+            return None
+
+        # only next player may call chii
+        player_index = (self.last_player_index + 1) % len(self.players)
+        chii_player = self.players[player_index]
+
+        chii_options = chii_player.hand.get_chii_options(self.last_discard)
+        if not chii_options:
+            return None
+
+        selected_tiles = self.ui.get_chii_choice(
+            chii_player,
+            self.last_discard,
+            chii_options,
+        )
+        if selected_tiles is None:
+            return None
+
+        called_tile = self.last_discard
+        from_player = self.last_player_index
+
+        chii_player.hand.apply_chii(called_tile, from_player, use_tiles=selected_tiles)
+        self.turn_pointer = player_index
+        self.round_phase = self.PHASE_DISCARD
+        self._clear_last_discard_state()
+
+        return {
+            "type": "chii",
+            "player": player_index,
+            "tile": called_tile,
+        }
 
 
 # AI GENERATED (instances of this elsewhere in the code were recommended by AI as well)

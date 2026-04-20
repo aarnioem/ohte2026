@@ -42,6 +42,10 @@ class CLI:
             self._render_kan(event)
             return
 
+        if event_type == "chii":
+            self._render_chii(event)
+            return
+
         if event_type == "end":
             self._render_end()
             return
@@ -97,13 +101,19 @@ class CLI:
     def _render_pon(self, event):
         self._separator("PON")
         tile = self._tile_to_text(event["tile"])
-        print(f"Player {event['player']} declares pon on {tile}")
+        print(f"Player {event['player']} calls pon on {tile}")
         print()
 
     def _render_kan(self, event):
         self._separator("KAN")
         tile = self._tile_to_text(event["tile"])
-        print(f"Player {event['player']} declares kan on {tile}")
+        print(f"Player {event['player']} calls kan on {tile}")
+        print()
+
+    def _render_chii(self, event):
+        self._separator("CHII")
+        tile = self._tile_to_text(event["tile"])
+        print(f"Player {event['player']} calls chii on {tile}")
         print()
 
     def _render_end(self):
@@ -196,11 +206,40 @@ class CLI:
                 return False
             print("Please choose y or n.")
 
-    def get_chii_choice(self):
-        pass
-
 
 # AI GENERATED CODE STARTS
+
+    def get_chii_choice(self, player: Player, discarded_tile: int, options):
+        if not player.is_human():
+            return None
+
+        if not options:
+            return None
+
+        while True:
+            self._separator("CHII")
+            print(f"You can chii on {self._tile_to_text(discarded_tile)}")
+            self._print_hand(player)
+
+            for i, option in enumerate(options):
+                meld_tiles = sorted(list(option) + [discarded_tile])
+                meld_text = " ".join(self._tile_to_text(tile) for tile in meld_tiles)
+                print(f"{i}: {meld_text}")
+
+            choice = input("Choose chii option index (or n to skip): ").strip().lower()
+            if choice in ("n", "no"):
+                print()
+                return None
+
+            if choice.isdigit():
+                index = int(choice)
+                if 0 <= index < len(options):
+                    print()
+                    return list(options[index])
+
+            print("Please choose a valid index or n.")
+
+
 
     def _print_hand(self, player: Player):
         col_width = 4  # enough for 'Wh' etc.
