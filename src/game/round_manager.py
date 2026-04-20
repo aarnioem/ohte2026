@@ -1,7 +1,6 @@
 from core.player import Player
 from core.wall import Wall
 from core.scoring import can_tsumo, can_ron
-from ui.cli import CLI
 
 
 class RoundManager:
@@ -157,6 +156,16 @@ class RoundManager:
         if self.last_discard is None:
             return {"type": "calls"}
 
+        ron_event = self._resolve_ron_calls()
+        if ron_event is not None:
+            return ron_event
+
+        self.round_phase = self.PHASE_DRAW
+        self.advance_turn()
+
+        return {"type": "calls"}
+
+    def _resolve_ron_calls(self):
         for offset in range(1, 4):
             player_index = (offset + self.turn_pointer) % 4
             ron_player = self.players[player_index]
@@ -184,10 +193,8 @@ class RoundManager:
                     "fu": fu,
                 }
 
-        self.round_phase = self.PHASE_DRAW
-        self.advance_turn()
+        return None
 
-        return {"type": "calls"}
 
     def _end_phase(self) -> dict:
         return {"type": "end"}
