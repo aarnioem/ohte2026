@@ -96,13 +96,13 @@ class CLI:
 
     def _render_pon(self, event):
         self._separator("PON")
-        tile = self._tile_to_text(event["called_tile"])
+        tile = self._tile_to_text(event["tile"])
         print(f"Player {event['player']} declares pon on {tile}")
         print()
 
     def _render_kan(self, event):
         self._separator("KAN")
-        tile = self._tile_to_text(event["called_tile"])
+        tile = self._tile_to_text(event["tile"])
         print(f"Player {event['player']} declares kan on {tile}")
         print()
 
