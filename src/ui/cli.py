@@ -34,6 +34,14 @@ class CLI:
             self._render_calls()
             return
 
+        if event_type == "pon":
+            self._render_pon(event)
+            return
+
+        if event_type == "kan":
+            self._render_kan(event)
+            return
+
         if event_type == "end":
             self._render_end()
             return
@@ -84,6 +92,18 @@ class CLI:
     def _render_calls(self):
         self._separator("CALLS")
         print("No calls. Next player.")
+        print()
+
+    def _render_pon(self, event):
+        self._separator("PON")
+        tile = self._tile_to_text(event["called_tile"])
+        print(f"Player {event['player']} declares pon on {tile}")
+        print()
+
+    def _render_kan(self, event):
+        self._separator("KAN")
+        tile = self._tile_to_text(event["called_tile"])
+        print(f"Player {event['player']} declares kan on {tile}")
         print()
 
     def _render_end(self):
