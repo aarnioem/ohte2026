@@ -15,3 +15,5 @@
 
 - pon and kan functionality
 - scoring for open hands
+- chii functionality
+- removed clutter from CLI and last draw is displayed separately from the rest of the hand

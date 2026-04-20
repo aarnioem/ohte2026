@@ -13,5 +13,5 @@
 | 13.4. | 3    | Refaktorointia, testejä pisteytykselle, round_managerin testauksen suunnittelua. Koodin laadun parantamisen suunnittelua (kapselointi, riippuvuuksien injektointi) |
 | 14.4. | 4    | Luokkakaavio. RoundManager refaktorointia, wall luokasta testattavampi. Ensimmäisiä testejä RoundManager luokalle |
 | 19.4. | 2    | Pon/Kan/Chii suunnittelua ja toteutuksen aloitus. Uusi Meld luokka, lisää tarpeellisia metodeja Hand luokalle. |
-| 20.4. | 4    | Pon/Kan toteutus. Pisteytys toimii avoimena. RoundManagerin refaktorointia, UI:lle tarpeelliset uudet ominaisuudet. |
-| yht   | 39   | |
+| 20.4. | 8    | Pon/Kan toteutus. Pisteytys toimii avoimena. RoundManagerin refaktorointia, UI:lle tarpeelliset uudet ominaisuudet. Lisää testejä. Chii toteutus. CLI parantelua. |
+| yht   | 43   | |
