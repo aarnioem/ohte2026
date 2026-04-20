@@ -15,6 +15,8 @@ class CLI:
         event_type = event.get("type")
 
         if event_type == "draw":
+            if "tile" in event and not player.is_human():
+                return
             self._render_draw(event, player)
             return
 
@@ -31,7 +33,8 @@ class CLI:
             return
 
         if event_type == "calls":
-            self._render_calls()
+            # this creates unnecessary spam so it's disabled for now
+            # self._render_calls()
             return
 
         if event_type == "pon":
@@ -124,13 +127,19 @@ class CLI:
     def get_discard_choice(self, player: Player):
         if player.is_human():
             self._separator("CHOOSE DISCARD")
-            self._print_hand(player)
+            regular_tiles, drawn_tile = self._print_discard_hand(player)
+
             while True:
                 try:
                     choice = int(input("Choose discard index: "))
-                    if 0 <= choice < len(player.hand.tiles):
+                    if drawn_tile is not None and choice == 0:
                         print()
-                        return player.hand.tiles[choice]
+                        return drawn_tile
+
+                    if 1 <= choice <= len(regular_tiles):
+                        print()
+                        return regular_tiles[choice - 1]
+
                     print("Index out of range.")
 
                 except ValueError:
@@ -244,11 +253,38 @@ class CLI:
     def _print_hand(self, player: Player):
         col_width = 4  # enough for 'Wh' etc.
 
-        indexes = [str(i).ljust(col_width) for i in range(len(player.hand.tiles))]
+        indexes = [str(i).ljust(col_width) for i in range(1, len(player.hand.tiles) + 1)]
         tiles = [self._tile_to_text(t).ljust(col_width) for t in player.hand.tiles]
 
         print("Index:", "".join(indexes))
         print("Tile: ", "".join(tiles))
+
+    def _print_discard_hand(self, player: Player):
+        col_width = 4
+
+        hand_tiles = list(player.hand.tiles)
+        drawn_tile = getattr(player, "last_drawn_tile", None)
+
+        if drawn_tile is not None and drawn_tile in hand_tiles:
+            regular_tiles = [tile for tile in hand_tiles if tile != drawn_tile]
+        else:
+            regular_tiles = hand_tiles
+            drawn_tile = None
+
+        indexes = [str(i).ljust(col_width) for i in range(1, len(regular_tiles) + 1)]
+        tiles = [self._tile_to_text(t).ljust(col_width) for t in regular_tiles]
+
+        index_row = "".join(indexes)
+        tile_row = "".join(tiles)
+
+        if drawn_tile is not None:
+            index_row += "   0"
+            tile_row += f"   {self._tile_to_text(drawn_tile)} (last draw)"
+
+        print("Index:", index_row)
+        print("Tile: ", tile_row)
+
+        return regular_tiles, drawn_tile
 
     def _tile_to_text(self, tile_id: int):
         # 136-id -> 34-index (ignore copy)
@@ -282,6 +318,6 @@ class CLI:
         tiles = " ".join(self._tile_to_text(tile) for tile in discards)
         if not tiles:
             tiles = "-"
-        print(f"P{player_index} discards: {tiles}")
+        print(f"P{player_index} discard pile: {tiles}")
 
 # AI GENERATED CODE ENDS

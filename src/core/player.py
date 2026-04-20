@@ -11,14 +11,17 @@ class Player:
         self.discards = [] # change this to a class later maybe
         self.score = 25000
         self.riichi = False
+        self.last_drawn_tile = None
 
     def is_human(self):
         return self.human
 
     def receive_tile(self, tile_id):
         self.hand.add_tile(tile_id)
+        self.last_drawn_tile = tile_id
 
     def discard(self, tile):
         tile = self.hand.remove_tile(tile)
         self.discards.append(tile)
+        self.last_drawn_tile = None
         return tile
