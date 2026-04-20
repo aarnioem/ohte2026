@@ -111,7 +111,12 @@ class RoundManager:
 
 
     def _try_tsumo(self, player: Player, tile: int):
-        tsumo_available, result = can_tsumo(player.hand.tiles, tile, player.riichi)
+        tsumo_available, result = can_tsumo(
+            player.hand.tiles,
+            tile,
+            player.riichi,
+            player.hand.melds,
+        )
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
 
@@ -150,7 +155,6 @@ class RoundManager:
         }
 
 
-    # This needs a similar refactor as drawa phase
     def _calls_phase(self) -> dict:
         """Only ron currently"""
         if self.last_discard is None:
@@ -178,7 +182,8 @@ class RoundManager:
             ron_available, result = can_ron(
                 ron_player.hand.tiles,
                 self.last_discard,
-                ron_player.riichi
+                ron_player.riichi,
+                ron_player.hand.melds,
             )
 
             han = None
