@@ -1,6 +1,7 @@
 import unittest
 import pytest
 from core.scoring import can_tsumo, can_ron, calculate_win
+from core.melds import Meld
 
 
 # TSUMO
@@ -24,6 +25,18 @@ def test_can_closed_tsumo_with_no_other_yaku():
     assert result is not None and result.han == 1
 
 
+def test_can_open_tsumo_with_tanyao():
+    # 234m 234p 456p 888s 66s
+    tiles = [4, 8, 12, 40, 44, 48, 49, 52, 56, 92, 93]
+    melds = [Meld(called_tile=100, tiles=[100, 101, 102],
+                  from_player=1, meld_type="pon", open_call=True)]
+
+    can_win, result = can_tsumo(tiles, 93, riichi=False, melds=melds)
+
+    assert can_win is True
+    assert result is not None and result.han == 1
+
+
 # RON
 
 def test_can_ron_is_false_with_too_few_tiles():
@@ -33,6 +46,16 @@ def test_can_ron_is_false_with_too_few_tiles():
     assert can_win is False
     assert result is None
 
+def test_can_open_ron_with_tanyao():
+    # 234m 234p 456p 888s 66s
+    tiles = [4, 8, 12, 40, 44, 48, 49, 52, 56, 92]
+    melds = [Meld(called_tile=100, tiles=[100, 101, 102],
+                  from_player=1, meld_type="pon", open_call=True)]
+
+    can_win, result = can_ron(tiles, 93, riichi=False, melds=melds)
+
+    assert can_win is True
+    assert result is not None and result.han == 1
 
 def test_can_ron_with_no_yaku_returns_false():
     # 123m 234p 456p 789s WW
