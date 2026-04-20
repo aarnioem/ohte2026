@@ -69,42 +69,8 @@ class Hand:
         Returns:
             bool: True if chii can be called, otherwise False
         """
-        # AI GENERATED CODE STARTS
-
         discard34 = self._tile34(discard_tile)
-
-        # Honors cannot be used in chii
-        if discard34 >= 27:
-            return False
-
-        suit_start = (discard34 // 9) * 9
-        suit_pos = discard34 % 9
-        counts = self._tile34_counts()
-
-        patterns = []
-
-        # x-2, x-1, x
-        if suit_pos >= 2:
-            patterns.append((discard34 - 2, discard34 - 1))
-
-        # x-1, x, x+1
-        if 1 <= suit_pos <= 7:
-            patterns.append((discard34 - 1, discard34 + 1))
-
-        # x, x+1, x+2
-        if suit_pos <= 6:
-            patterns.append((discard34 + 1, discard34 + 2))
-
-        for a, b in patterns:
-            # defensive check against crossing suit boundaries
-            if not (suit_start <= a < suit_start + 9 and suit_start <= b < suit_start + 9):
-                continue
-
-            if counts.get(a, 0) >= 1 and counts.get(b, 0) >= 1:
-                return True
-
-        return False
-        # AI GENERATED CODE ENDS
+        return len(self._available_chii_patterns(discard34)) > 0
 
     def can_open_kan(self, discard_tile):
         """Checks if an open kan can be called.
@@ -119,13 +85,140 @@ class Hand:
         return self._tile34_counts().get(discard34, 0) >= 3
 
 
-    def apply_pon(self):
-        pass
+# AI GENERATED CODE STARTS
+    def _remove_n_by_tile34(self, tile34, amount):
+        removed = []
+
+        for tile in list(self.tiles):
+            if self._tile34(tile) == tile34:
+                self.tiles.remove(tile)
+                removed.append(tile)
+                if len(removed) == amount:
+                    break
+
+        if len(removed) != amount:
+            raise ValueError(f"Could not remove {amount} tiles of type {tile34}")
+
+        return removed
 
 
-    def apply_kan(self):
-        pass
+    def _chii_patterns(self, discard34):
+        if discard34 >= 27:
+            return []
+
+        suit_start = (discard34 // 9) * 9
+        suit_pos = discard34 % 9
+        patterns = []
+
+        if suit_pos >= 2:
+            patterns.append((discard34 - 2, discard34 - 1))
+
+        if 1 <= suit_pos <= 7:
+            patterns.append((discard34 - 1, discard34 + 1))
+
+        if suit_pos <= 6:
+            patterns.append((discard34 + 1, discard34 + 2))
+
+        valid = []
+        for a, b in patterns:
+            if suit_start <= a < suit_start + 9 and suit_start <= b < suit_start + 9:
+                valid.append((a, b))
+
+        return valid
 
 
-    def apply_chii(self):
-        pass
+    def _available_chii_patterns(self, discard34):
+        counts = self._tile34_counts()
+        return [
+            (a, b)
+            for a, b in self._chii_patterns(discard34)
+            if counts.get(a, 0) >= 1 and counts.get(b, 0) >= 1
+        ]
+
+
+    def _tiles_match_chii_pattern(self, use_tiles, valid_patterns):
+        use_34 = tuple(sorted(self._tile34(tile) for tile in use_tiles))
+        valid_normalized = {tuple(sorted(pattern)) for pattern in valid_patterns}
+        return use_34 in valid_normalized
+
+
+    def _remove_tiles_for_chii_pattern(self, pattern):
+        a, b = pattern
+        removed = []
+        removed.extend(self._remove_n_by_tile34(a, 1))
+        removed.extend(self._remove_n_by_tile34(b, 1))
+        return removed
+
+
+    def apply_pon(self, discard_tile, from_player):
+        if not self.can_pon(discard_tile):
+            raise ValueError("Pon is not available for this discard")
+
+        discard34 = self._tile34(discard_tile)
+        own_tiles = self._remove_n_by_tile34(discard34, 2)
+        meld_tiles = sorted(own_tiles + [discard_tile])
+
+        meld = Meld(
+            called_tile=discard_tile,
+            tiles=meld_tiles,
+            from_player=from_player,
+            meld_type="pon",
+            open_call=True,
+        )
+        self.melds.append(meld)
+        return meld
+
+
+    def apply_kan(self, discard_tile, from_player):
+        if not self.can_open_kan(discard_tile):
+            raise ValueError("Open kan is not available for this discard")
+
+        discard34 = self._tile34(discard_tile)
+        own_tiles = self._remove_n_by_tile34(discard34, 3)
+        meld_tiles = sorted(own_tiles + [discard_tile])
+
+        meld = Meld(
+            called_tile=discard_tile,
+            tiles=meld_tiles,
+            from_player=from_player,
+            meld_type="kan",
+            open_call=True,
+        )
+        self.melds.append(meld)
+        return meld
+
+
+    def apply_chii(self, discard_tile, from_player, use_tiles=None):
+        discard34 = self._tile34(discard_tile)
+        available_patterns = self._available_chii_patterns(discard34)
+
+        if not available_patterns:
+            raise ValueError("Chii is not available for this discard")
+
+        if use_tiles is not None:
+            if len(use_tiles) != 2:
+                raise ValueError("use_tiles must contain exactly two tile IDs")
+
+            use_tiles = list(use_tiles)
+            if not self._tiles_match_chii_pattern(use_tiles, available_patterns):
+                raise ValueError("Chosen tiles do not form a valid chii pattern")
+
+            for tile in use_tiles:
+                self.remove_tile(tile)
+
+            selected_tiles = use_tiles
+        else:
+            selected_tiles = self._remove_tiles_for_chii_pattern(available_patterns[0])
+
+        meld_tiles = sorted(selected_tiles + [discard_tile])
+
+        meld = Meld(
+            called_tile=discard_tile,
+            tiles=meld_tiles,
+            from_player=from_player,
+            meld_type="chii",
+            open_call=True,
+        )
+        self.melds.append(meld)
+        return meld
+# AI GENERATED CODE ENDS
