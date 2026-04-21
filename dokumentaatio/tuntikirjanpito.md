@@ -14,4 +14,5 @@
 | 14.4. | 4    | Luokkakaavio. RoundManager refaktorointia, wall luokasta testattavampi. Ensimmäisiä testejä RoundManager luokalle |
 | 19.4. | 2    | Pon/Kan/Chii suunnittelua ja toteutuksen aloitus. Uusi Meld luokka, lisää tarpeellisia metodeja Hand luokalle. |
 | 20.4. | 8    | Pon/Kan toteutus. Pisteytys toimii avoimena. RoundManagerin refaktorointia, UI:lle tarpeelliset uudet ominaisuudet. Lisää testejä. Chii toteutus. CLI parantelua. |
-| yht   | 43   | |
+| 20.4. | 2    | Sekvenssikaavio. Paremman UIn suunnittelua. |
+| yht   | 45   | |
