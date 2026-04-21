@@ -60,3 +60,48 @@ classDiagram
     }
 
 ```
+
+## Pelilogiikka
+
+### Pelin aloitus ja ensimmäisen pelaajan vuoro
+
+```mermaid
+sequenceDiagram
+    participant Main
+    participant RoundManager
+    participant Wall
+    participant Player
+    participant UI
+    actor User
+
+    Main->>RoundManager: play_round()
+    RoundManager->>RoundManager: _start_round()
+
+    loop Deal tiles to each player
+        RoundManager->>Wall: draw_tile()
+        Wall-->>RoundManager: tile
+        RoundManager->>Player: player.hand.add_tile(tile)
+    end
+
+
+    RoundManager->>RoundManager: next_phase()
+    RoundManager->>UI: render(event, self._current_player())
+
+    RoundManager->>Wall: draw_tile()
+    Wall-->>RoundManager: tile
+    RoundManager->>Player: receive_tile(tile)
+    RoundManager->>RoundManager: _try_tsumo()
+    Note over RoundManager: no tsumo
+
+
+    RoundManager->>UI: get_discard_choice(player)
+    User->>UI: choice
+    UI-->>RoundManager: tile
+    RoundManager->>Player: discard(tile)
+    Player-->>RoundManager: tile discarded
+
+    RoundManager->>RoundManager: _calls_phase()
+    Note over RoundManager: no calls made
+    RoundManager->>RoundManager: advance_turn()
+
+```
