@@ -28,7 +28,8 @@ class Wall:
         if shuffle:
             random.shuffle(self.tiles)
 
-        self.rinshan_tiles = self._get_rinshan_tiles()
+        if dead_wall_size >= 14:
+            self.rinshan_tiles = self._get_rinshan_tiles()
 
         self.draw_pointer = 0
 
