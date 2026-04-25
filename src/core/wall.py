@@ -38,7 +38,7 @@ class Wall:
         Returns:
             int: tiles left
         """
-        return self.total_tiles - self.draw_pointer - self.dead_wall_size
+        return self.total_tiles - self.draw_pointer - self.kan_counter - self.dead_wall_size
 
     def draw_tile(self):
         """Draws a tile from the live wall and increments the draw counter
