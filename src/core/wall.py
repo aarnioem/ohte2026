@@ -24,6 +24,7 @@ class Wall:
         self.total_tiles = len(self.tiles)
         self.dead_wall_size = dead_wall_size
         self.kan_counter = 0
+        self.revealed_dora = 1
 
         if shuffle:
             random.shuffle(self.tiles)
@@ -74,7 +75,46 @@ class Wall:
         """
         if self.live_tiles() <= 0:
             raise IndexError("No tiles left in the wall")
+        if self.kan_counter >= 4:
+            raise IndexError("Too many rinshan draws")
 
         tile = self.rinshan_tiles[self.kan_counter]
         self.kan_counter += 1
         return tile
+
+
+    # This needs to be separate from the kan counter,
+    # because the dora is revealed after the rinshan draw and discard
+    def reveal_next_dora(self):
+        """Increments the revealed dora counter
+        """
+        self.revealed_dora += 1
+
+
+    def get_dora_indicators(self):
+        """Returns a list of visible dora indicators
+
+        Returns:
+            list: tile ids
+        """
+        doras = [self.tiles[-6],
+                self.tiles[-8],
+                self.tiles[-10],
+                self.tiles[-12],
+                self.tiles[-14]]
+
+        return doras[0:self.revealed_dora]
+
+    def get_uradora_indicators(self):
+        """Returns a list of available uradora indicators
+
+        Returns:
+            list: tile ids
+        """
+        uradoras = [self.tiles[-5],
+                self.tiles[-7],
+                self.tiles[-9],
+                self.tiles[-11],
+                self.tiles[-13]]
+
+        return uradoras[0:self.revealed_dora]
