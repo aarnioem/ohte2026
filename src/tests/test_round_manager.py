@@ -61,10 +61,9 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(self.game.round_phase, self.game.PHASE_DRAW)
 
     def test_draw_phase_returns_correct_draw_event(self):
-        wall = Wall(tiles=[55], shuffle=False, dead_wall_size=0)
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
         game = RoundManager(self.players, StubUI, wall)
 
         event = game._draw_phase()
         self.assertEqual(event["type"], "draw")
-        self.assertEqual(event["tile"], 55)
-
+        self.assertEqual(event["tile"], 0)
