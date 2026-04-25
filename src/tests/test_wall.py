@@ -46,3 +46,20 @@ class TestWall(unittest.TestCase):
         wall.reveal_next_dora()
         dora = wall.get_uradora_indicators()
         self.assertEqual([wall.tiles[-5], wall.tiles[-7]], dora)
+
+
+    def test_draw_rinshan_tile_error_after_four_draws(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        for _ in range(4):
+            wall.draw_rinshan_tile()
+        with self.assertRaises(IndexError):
+            wall.draw_rinshan_tile()
+
+
+    def test_rinshan_draws_in_correct_order(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+
+        self.assertEqual(wall.draw_rinshan_tile(), 134)
+        self.assertEqual(wall.draw_rinshan_tile(), 135)
+        self.assertEqual(wall.draw_rinshan_tile(), 132)
+        self.assertEqual(wall.draw_rinshan_tile(), 133)
