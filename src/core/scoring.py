@@ -51,8 +51,23 @@ def _meld_tiles_136(melds):
     return tiles
 
 
-def calculate_win(tiles_136, win_tile, is_tsumo, *, riichi=False,
+def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi=False,
                   melds=None, dora_indicators=None, uradora_indicators=None):
+    """Calculates the hand value using the mahjong library calculator
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand
+        win_tile (int): tile the win was called on
+        is_tsumo (bool): is the winning tile drawn (True) or discarded (False)
+        riichi (bool, optional): Is the player in riichi. Defaults to False.
+        melds (list[Meld], optional): List of meld objects in the hand. Defaults to None.
+        dora_indicators (list[int], optional): Visible dora indicators. Defaults to None.
+        uradora_indicators (list[int], optional): Uradora indicators if the player is in riichi.
+        Defaults to None.
+
+    Returns:
+        HandResponse: Mahjong library result object containing score details.
+    """
     all_tiles = list(tiles_136) + _meld_tiles_136(melds)
     tiles = sorted(all_tiles)
     scoring_melds = _to_mahjong_melds(melds)
