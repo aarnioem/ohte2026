@@ -76,3 +76,15 @@ def test_calculate_win_tsumo_with_valid_hand():
 
     assert result.error is None
     assert result.han == 7
+
+
+def test_calculate_win_tsumo_with_valid_hand_and_3_dora():
+    # 111m 111p 111s 789s SS
+    # tsumo 1 han, chanta 2 han, sanankou 2 han, sanshoku doukou 2 han, 3 dora = 10 han
+    # dora indicator is 9m which makes 1m dora 
+    tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112, 113]
+
+    result = calculate_win(tiles, 113, True, dora_indicators=[32])
+
+    assert result.error is None
+    assert result.han == 10
