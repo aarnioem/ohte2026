@@ -124,10 +124,10 @@ class CLI:
         print("Round ended.")
         print()
 
-    def get_discard_choice(self, player: Player):
+    def get_discard_choice(self, player: Player, dora_indicators=None):
         if player.is_human():
             self._separator("CHOOSE DISCARD")
-            regular_tiles, drawn_tile = self._print_discard_hand(player)
+            regular_tiles, drawn_tile = self._print_discard_hand(player, dora_indicators)
 
             while True:
                 try:
@@ -259,7 +259,7 @@ class CLI:
         print("Index:", "".join(indexes))
         print("Tile: ", "".join(tiles))
 
-    def _print_discard_hand(self, player: Player):
+    def _print_discard_hand(self, player: Player, dora_indicators=None):
         col_width = 4
 
         hand_tiles = list(player.hand.tiles)
@@ -281,6 +281,7 @@ class CLI:
             index_row += "   0"
             tile_row += f"   {self._tile_to_text(drawn_tile)} (last draw)"
 
+        self._render_dora_indicators(dora_indicators)
         print("Index:", index_row)
         print("Tile: ", tile_row)
 
@@ -310,6 +311,14 @@ class CLI:
         else:
             line = "-" * width
         print(line)
+
+    def _render_dora_indicators(self, dora_indicators=None):
+        if not dora_indicators:
+            print("Dora indicators: -")
+            return
+
+        dora_text = " ".join(self._tile_to_text(tile) for tile in dora_indicators)
+        print(f"Dora indicators: {dora_text}")
 
     def _render_player_discards(self, player_index, discards):
         if player_index is None:

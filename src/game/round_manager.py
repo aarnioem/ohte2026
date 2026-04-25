@@ -169,7 +169,8 @@ class RoundManager:
     def _discard_phase(self) -> dict:
         player = self._current_player()
 
-        tile = self.ui.get_discard_choice(player)
+        dora_indicators = self.wall.get_dora_indicators()
+        tile = self.ui.get_discard_choice(player, dora_indicators)
 
         player.discard(tile)
         self.last_discard = tile
