@@ -12,6 +12,7 @@ class RoundManager:
     PHASE_START = "START"
     PHASE_DEALING = "DEALING"
     PHASE_DRAW = "DRAW"
+    PHASE_RINSHAN = "RINSHAN"
     PHASE_DISCARD = "DISCARD"
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
@@ -23,6 +24,7 @@ class RoundManager:
 
         self.last_discard = None
         self.last_player_index = None
+        self.pending_dora_reveal = False
 
         self.wall = wall
         self.round_phase = self.PHASE_START
@@ -40,6 +42,9 @@ class RoundManager:
     def next_phase(self) -> dict:
         if self.round_phase == self.PHASE_DRAW:
             return self._draw_phase()
+
+        if self.round_phase == self.PHASE_RINSHAN:
+            return self._rinshan_phase()
 
         if self.round_phase == self.PHASE_DISCARD:
             return self._discard_phase()
@@ -96,6 +101,29 @@ class RoundManager:
             "tile": tile
         }
 
+    def _rinshan_phase(self):
+        player = self._current_player()
+        rinshan_draw = self.wall.draw_rinshan_tile()
+        player.receive_tile(rinshan_draw)
+        tsumo_event = self._try_tsumo(player, rinshan_draw)
+        if tsumo_event is not None:
+            return tsumo_event
+
+        if self.wall.kan_counter >= 4:
+            self.round_phase = self.PHASE_END
+            return {
+                "type": "draw",
+                "draw_type": "abortive",
+                "reason": "four_kan"
+            }
+
+        self.round_phase = self.PHASE_DISCARD
+        return {
+            "type": "draw",
+            "player": self.turn_pointer,
+            "tile": rinshan_draw
+        }
+
 
     def _draw_tile_or_end(self, player: Player):
         if self.wall.live_tiles() <= 0:
@@ -111,11 +139,13 @@ class RoundManager:
 
 
     def _try_tsumo(self, player: Player, tile: int):
+        dora_indicators = self.wall.get_dora_indicators()
         tsumo_available, result = can_tsumo(
             player.hand.tiles,
             tile,
             riichi=player.riichi,
             melds=player.hand.melds,
+            dora_indicators=dora_indicators
         )
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
@@ -164,6 +194,10 @@ class RoundManager:
         if ron_event is not None:
             return ron_event
 
+        if self.pending_dora_reveal:
+            self.wall.reveal_next_dora()
+            self.pending_dora_reveal = False
+
         pon_kan_event = self._resolve_pon_kan_calls()
         if pon_kan_event is not None:
             return pon_kan_event
@@ -183,11 +217,13 @@ class RoundManager:
             player_index = (offset + self.turn_pointer) % 4
             ron_player = self.players[player_index]
 
+            dora_indicators=self.wall.get_dora_indicators()
             ron_available, result = can_ron(
                 ron_player.hand.tiles,
                 self.last_discard,
                 riichi=ron_player.riichi,
                 melds=ron_player.hand.melds,
+                dora_indicators=dora_indicators
             )
 
             han = None
@@ -221,7 +257,8 @@ class RoundManager:
                     called_tile = self.last_discard
                     pon_kan_player.hand.apply_kan(self.last_discard, self.last_player_index)
                     self.turn_pointer = player_index
-                    self.round_phase = self.PHASE_DISCARD
+                    self.round_phase = self.PHASE_RINSHAN
+                    self.pending_dora_reveal = True
                     self._clear_last_discard_state()
                     return {
                         "type": "kan",
