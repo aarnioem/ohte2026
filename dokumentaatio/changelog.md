@@ -17,3 +17,8 @@
 - scoring for open hands
 - chii functionality
 - removed clutter from CLI and last draw is displayed separately from the rest of the hand
+
+### week 6
+- player who calls kan draws a proper rinshan tile from the deadwall
+- dora indicators are visible and add extra han points to winning hands
+- calling 4 kans in a round ends the round (suukaikan rule)

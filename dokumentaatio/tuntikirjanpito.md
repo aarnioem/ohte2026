@@ -15,4 +15,5 @@
 | 19.4. | 2    | Pon/Kan/Chii suunnittelua ja toteutuksen aloitus. Uusi Meld luokka, lisää tarpeellisia metodeja Hand luokalle. |
 | 20.4. | 8    | Pon/Kan toteutus. Pisteytys toimii avoimena. RoundManagerin refaktorointia, UI:lle tarpeelliset uudet ominaisuudet. Lisää testejä. Chii toteutus. CLI parantelua. |
 | 20.4. | 2    | Sekvenssikaavio. Paremman UIn suunnittelua. |
-| yht   | 45   | |
+| 25.4. | 4    | Doran toteutus, rinshan toteutus. Doraindikaattorit näkyviin UI:hin. Testejä.|
+| yht   | 49   | |
