@@ -51,7 +51,8 @@ def _meld_tiles_136(melds):
     return tiles
 
 
-def calculate_win(tiles_136, win_tile, is_tsumo, riichi=False, melds=None):
+def calculate_win(tiles_136, win_tile, is_tsumo, *, riichi=False,
+                  melds=None, dora_indicators=None, uradora_indicators=None):
     all_tiles = list(tiles_136) + _meld_tiles_136(melds)
     tiles = sorted(all_tiles)
     scoring_melds = _to_mahjong_melds(melds)
@@ -67,7 +68,8 @@ def calculate_win(tiles_136, win_tile, is_tsumo, riichi=False, melds=None):
         tiles=tiles,
         win_tile=win_tile,
         melds=scoring_melds,
-        dora_indicators=None,
+        dora_indicators=dora_indicators,
+        ura_dora_indicators=uradora_indicators,
         config=config,
     )
 
@@ -76,7 +78,8 @@ def _is_valid_win(result):
     return result.error is None and result.han is not None and result.han > 0
 
 
-def can_tsumo(tiles_136, drawn_tile, riichi=False, melds=None):
+def can_tsumo(tiles_136, drawn_tile, *, riichi=False, melds=None,
+              dora_indicators=None, uradora_indicators=None):
     """
     Check whether a 14-tile concealed hand can win by tsumo.
     """
@@ -90,13 +93,16 @@ def can_tsumo(tiles_136, drawn_tile, riichi=False, melds=None):
         is_tsumo=True,
         riichi=riichi,
         melds=melds,
+        dora_indicators=dora_indicators,
+        uradora_indicators=uradora_indicators
     )
 
     can_win = _is_valid_win(result)
     return (can_win, result)
 
 
-def can_ron(tiles_136, discarded_tile, riichi=False, melds=None):
+def can_ron(tiles_136, discarded_tile, *, riichi=False, melds=None,
+            dora_indicators=None, uradora_indicators=None):
     """
     Check whether a 13-tile concealed hand can win by Ron.
     """
@@ -109,6 +115,8 @@ def can_ron(tiles_136, discarded_tile, riichi=False, melds=None):
         is_tsumo=False,
         riichi=riichi,
         melds=melds,
+        dora_indicators=dora_indicators,
+        uradora_indicators=uradora_indicators
     )
 
     can_win = _is_valid_win(result)

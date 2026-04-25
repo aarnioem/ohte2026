@@ -114,8 +114,8 @@ class RoundManager:
         tsumo_available, result = can_tsumo(
             player.hand.tiles,
             tile,
-            player.riichi,
-            player.hand.melds,
+            riichi=player.riichi,
+            melds=player.hand.melds,
         )
         if tsumo_available and self.ui.get_tsumo_choice(player, tile):
             self.round_phase = self.PHASE_END
@@ -186,8 +186,8 @@ class RoundManager:
             ron_available, result = can_ron(
                 ron_player.hand.tiles,
                 self.last_discard,
-                ron_player.riichi,
-                ron_player.hand.melds,
+                riichi=ron_player.riichi,
+                melds=ron_player.hand.melds,
             )
 
             han = None
