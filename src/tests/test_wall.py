@@ -21,3 +21,28 @@ class TestWall(unittest.TestCase):
         self.assertEqual(tile, 5)
         with self.assertRaises(IndexError):
             wall.draw_tile()
+
+    def test_initial_dora_indicator_exists(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        dora = wall.get_dora_indicators()
+        self.assertEqual([wall.tiles[-6]], dora)
+
+
+    def test_initial_uradora_indicator_exists(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        dora = wall.get_uradora_indicators()
+        self.assertEqual([wall.tiles[-5]], dora)
+
+
+    def test_revealing_dora_adds_next_dora_indicator(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        wall.reveal_next_dora()
+        dora = wall.get_dora_indicators()
+        self.assertEqual([wall.tiles[-6], wall.tiles[-8]], dora)
+
+
+    def test_revealing_dora_adds_next_uradora_indicator(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        wall.reveal_next_dora()
+        dora = wall.get_uradora_indicators()
+        self.assertEqual([wall.tiles[-5], wall.tiles[-7]], dora)
