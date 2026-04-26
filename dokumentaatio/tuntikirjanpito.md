@@ -16,4 +16,5 @@
 | 20.4. | 8    | Pon/Kan toteutus. Pisteytys toimii avoimena. RoundManagerin refaktorointia, UI:lle tarpeelliset uudet ominaisuudet. Lisää testejä. Chii toteutus. CLI parantelua. |
 | 20.4. | 2    | Sekvenssikaavio. Paremman UIn suunnittelua. |
 | 25.4. | 4    | Doran toteutus, rinshan toteutus. Doraindikaattorit näkyviin UI:hin. Testejä.|
-| yht   | 49   | |
+| 26.4. | 2    | Docstring dokumentaatiota, arkkitehtuurikuvauksen tekoa|
+| yht   | 51   | |
