@@ -8,7 +8,17 @@ from mahjong.meld import Meld as MahjongMeld
 
 
 def _to_mahjong_melds(melds):
-    """Converts a meld object into a mahjong library meld object"""
+    """Converts custom meld objects into mahjong library meld objects
+
+    Args:
+        melds (list[Meld]): List of custom meld objects
+    
+    Raises:
+        ValueError: In the case where meld types are not recognised
+
+    Returns:
+        list[MahjongMeld]: List of melds as mahjong library meld objects
+    """
     if not melds:
         return None
 
@@ -90,13 +100,34 @@ def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi
 
 
 def _is_valid_win(result):
+    """Checks if the calculated result is a valid win
+
+    Args:
+        result (HandResponse): result calculation object
+
+    Returns:
+        bool: True if the hand has a valid yaku, otherwise False
+    """
     return result.error is None and result.han is not None and result.han > 0
 
 
 def can_tsumo(tiles_136, drawn_tile, *, riichi=False, melds=None,
               dora_indicators=None, uradora_indicators=None):
-    """
-    Check whether a 14-tile concealed hand can win by tsumo.
+    """Checks whether a hand can win by tsumo on a drawn tile.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand
+        drawn_tile (int): tile id of drawn tile
+        riichi (bool, optional): Is the player in riichi. Defaults to False.
+        melds (list[Meld], optional): List of melds the player has called. Defaults to None.
+        dora_indicators (list[int], optional): List of open dora indicators. Defaults to None.
+        uradora_indicators (list[int], optional): List of uradora indicators if the player
+            is in riichi. Defaults to None.
+
+    Returns:
+        tuple[bool, HandResponse | None]: Tuple where the first part indicates whether tsumo
+            is possible and the second part has the mahjong library result object.
+            Returns ``(False, None)`` when hand size is invalid.
     """
 
     if not melds and len(tiles_136) != 14:
@@ -118,8 +149,21 @@ def can_tsumo(tiles_136, drawn_tile, *, riichi=False, melds=None,
 
 def can_ron(tiles_136, discarded_tile, *, riichi=False, melds=None,
             dora_indicators=None, uradora_indicators=None):
-    """
-    Check whether a 13-tile concealed hand can win by Ron.
+    """Checks whether a hand can win by ron on a discarded tile.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand
+        discarded_tile (int): tile id of discarded tile
+        riichi (bool, optional): Is the player in riichi. Defaults to False.
+        melds (list[Meld], optional): List of melds the player has called. Defaults to None.
+        dora_indicators (list[int], optional): List of open dora indicators. Defaults to None.
+        uradora_indicators (list[int], optional): List of uradora indicators if the player
+            is in riichi. Defaults to None.
+
+    Returns:
+        tuple[bool, HandResponse | None]: Tuple where the first part indicates whether ron
+            is possible and the second part has the mahjong library result object.
+            Returns ``(False, None)`` when hand size is invalid.
     """
     if not melds and len(tiles_136) != 13:
         return (False, None)
