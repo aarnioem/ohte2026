@@ -6,9 +6,22 @@ class Hand:
         self.melds = []
 
     def tile_amount(self):
+        """Returns the number of playable tiles in hand
+
+        Returns:
+            int: amount of tiles in hand
+        """
         return len(self.tiles)
 
     def add_tile(self, tile):
+        """Adds a given tile to the hand
+
+        Args:
+            tile (int): tile id
+
+        Raises:
+            ValueError: in the case where the tile is already in hand
+        """
         if tile in self.tiles:
             raise ValueError(f"Tile {tile} is already in hand")
 
@@ -17,6 +30,17 @@ class Hand:
 
 
     def remove_tile(self, tile):
+        """Removes a given tile from the hand
+
+        Args:
+            tile (int): tile id
+
+        Raises:
+            ValueError: In the case where the given tile is not in hand
+
+        Returns:
+            int: removed tile id
+        """
         if tile not in self.tiles:
             raise ValueError(f"Tile {tile} is not in hand")
 
@@ -105,6 +129,18 @@ class Hand:
         return options
 
     def _remove_n_by_tile34(self, tile34, amount):
+        """Removes a given amount of tiles of the specified 34-index type.
+
+        Args:
+            tile34 (int): tile type as a 34-index
+            amount (int): amount of tiles to remove
+
+        Raises:
+            ValueError: In the case where enough matching tiles cannot be removed
+
+        Returns:
+            list[int]: removed tile ids
+        """
         removed = []
 
         for tile in list(self.tiles):
@@ -121,6 +157,17 @@ class Hand:
 
 
     def _first_tile_by_tile34(self, tile34):
+        """Finds the first tile id in hand that matches a given 34-index
+
+        Args:
+            tile34 (int): tile type in 34-index
+
+        Raises:
+            ValueError: In the case where the tile type is not in hand
+
+        Returns:
+            int: tile id
+        """
         for tile in self.tiles:
             if self._tile34(tile) == tile34:
                 return tile
@@ -129,6 +176,14 @@ class Hand:
 
 
     def _chii_patterns(self, discard34):
+        """Finds all valid chii patterns for the discarded tile
+
+        Args:
+            discard34 (int): discarded tile in 34-index
+
+        Returns:
+            list[tuple(int, int)]: List of tuples of valid patterns
+        """
         if discard34 >= 27:
             return []
 
@@ -154,6 +209,14 @@ class Hand:
 
 
     def _available_chii_patterns(self, discard34):
+        """Returns chii patterns that can currently be made from hand
+
+        Args:
+            discard34 (int): discarded tile type as a 34-index
+
+        Returns:
+            list[tuple(int, int)]: available chii patterns
+        """
         counts = self._tile34_counts()
         return [
             (a, b)
@@ -169,6 +232,14 @@ class Hand:
 
 
     def _remove_tiles_for_chii_pattern(self, pattern):
+        """Removes tiles from hand of a chosen chii pattern
+
+        Args:
+            pattern (tuple(int, int)): chosen chii pattern in 34-indexes
+
+        Returns:
+            list[int]: removed tile ids
+        """
         a, b = pattern
         removed = []
         removed.extend(self._remove_n_by_tile34(a, 1))
@@ -177,6 +248,18 @@ class Hand:
 
 
     def apply_pon(self, discard_tile, from_player):
+        """Applies a pon call and saves the resulting meld.
+
+        Args:
+            discard_tile (int): discarded tile id
+            from_player (int): seat index of the player that discarded the tile
+
+        Raises:
+            ValueError: In the case where pon is not available
+
+        Returns:
+            Meld: resulting pon meld
+        """
         if not self.can_pon(discard_tile):
             raise ValueError("Pon is not available for this discard")
 
@@ -196,6 +279,18 @@ class Hand:
 
 
     def apply_kan(self, discard_tile, from_player):
+        """Applies a kan call and saves the resulting meld.
+
+        Args:
+            discard_tile (int): discarded tile id
+            from_player (int): seat index of the player that discarded the tile
+
+        Raises:
+            ValueError: In the case where kan is not available
+
+        Returns:
+            Meld: resulting kan meld
+        """
         if not self.can_open_kan(discard_tile):
             raise ValueError("Open kan is not available for this discard")
 
@@ -215,6 +310,19 @@ class Hand:
 
 
     def apply_chii(self, discard_tile, from_player, use_tiles=None):
+        """Applies a chii call to hand and stores the created meld.
+
+        Args:
+            discard_tile (int): discarded tile id
+            from_player (int): seat index of the player who discarded the tile
+            use_tiles (list[int]): List of tiles that should be used for the chii
+            
+        Raises:
+            ValueError: In the case where chii is unavailable or given tiles are invalid
+
+        Returns:
+            Meld: created chii meld
+        """
         discard34 = self._tile34(discard_tile)
         available_patterns = self._available_chii_patterns(discard34)
 
