@@ -15,12 +15,13 @@ Basic Japanese four player Riichi Mahjong.
     - Nagashi Mangan is so rare that it may be omitted from the basic version
     - There is a mahjong library for python for calculating hand scores that will be used for scoring.
 - Chii, Pon, Kan calls - DONE
-- Dora indicators
-- Uradora
+- Dora indicators - DONE
+- Uradora - Partially done, Riichi is not yet functional
 - Tenpai indicator that shows waits when a hand is ready
 - Furiten indicator
 - Ryuukyoku/Exhaustive Draw points calculation
 - No abortive draws in the basic version
+    - Four kan abortive draw is necessary - DONE
 - CLI - DONE (mostly)
 
 ### Possible features
