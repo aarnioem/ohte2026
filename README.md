@@ -13,6 +13,8 @@ Peli toteuttaa yhden erän japanilaista riichi mahjongia. Riichi mahjongin sää
 
 ### Pelin asentaminen
 
+[Lataa viimeisin release](https://github.com/aarnioem/ohte2026/releases)
+
 Riippuvuuksien asennus:
 ```
 poetry install
