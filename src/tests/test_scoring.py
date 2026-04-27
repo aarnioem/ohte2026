@@ -88,3 +88,25 @@ def test_calculate_win_tsumo_with_valid_hand_and_3_dora():
 
     assert result.error is None
     assert result.han == 10
+
+
+def test_calculate_ron_with_red_5_and_red5s_dora():
+    # P2 [r5m {5m} 5m] P2 [7p {7p} 7p], 6p6p6p, 8p8p, 6s7s, winning tile 5s
+    melds = [
+        Meld(called_tile=17, tiles=[16, 17, 18], from_player=2, meld_type="pon", open_call=True),
+        Meld(called_tile=60, tiles=[60, 61, 62], from_player=2, meld_type="pon", open_call=True),
+    ]
+
+    tiles = [56, 57, 58, 64, 65, 92, 96, 89]
+
+    result = calculate_win(
+        tiles,
+        89,
+        False,
+        melds=melds,
+        dora_indicators=[88],
+    )
+
+    assert result.error is None
+    assert result.han == 3
+    assert result.fu == 30

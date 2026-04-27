@@ -86,7 +86,7 @@ def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi
     config = HandConfig(
         is_tsumo=is_tsumo,
         is_riichi=riichi,
-        options=OptionalRules(has_open_tanyao=True),
+        options=OptionalRules(has_open_tanyao=True, has_aka_dora=True),
     )
 
     return calculator.estimate_hand_value(
