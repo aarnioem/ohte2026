@@ -22,3 +22,5 @@
 - player who calls kan draws a proper rinshan tile from the deadwall
 - dora indicators are visible and add extra han points to winning hands
 - calling 4 kans in a round ends the round (suukaikan rule)
+- UI shows melds
+- Red fives have been enabled
