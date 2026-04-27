@@ -9,6 +9,7 @@ Peli toteuttaa yhden erän japanilaista riichi mahjongia. Riichi mahjongin sää
 [Tuntikirjanpito](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/tuntikirjanpito.md)  
 [Changelog](https://github.com/aarnioem/ohte2026/tree/main/dokumentaatio/changelog.md)  
 [Arkkitehtuurikuvaus](https://github.com/aarnioem/ohte2026/blob/main/dokumentaatio/arkkitehtuuri.md)
+[Käyttöohje](dokumentaatio/kayttohje.md)
 
 ### Pelin asentaminen
 
