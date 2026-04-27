@@ -4,11 +4,12 @@ from core.scoring import can_tsumo, can_ron
 
 
 class RoundManager:
-    """
-    Handles the game logic for a single round of mahjong.
+    """Handles the game logic for a single round of mahjong.
+
+    The manager advances through phases (deal, draw, rinshan, discard, calls, end).
+    Creates event dictionaries for events that happen in the game, and passes those to the UI.
     """
 
-    # phases of round flow
     PHASE_START = "START"
     PHASE_DEALING = "DEALING"
     PHASE_DRAW = "DRAW"
@@ -18,6 +19,13 @@ class RoundManager:
     PHASE_END = "END"
 
     def __init__(self, players: list[Player], ui, wall: Wall):
+        """Initializes the round manager.
+
+        Args:
+            players (list[Player]): List of players in seating order.
+            ui: UI object for requesting choices and rendering events.
+            wall (Wall): The tile wall for the round.
+        """
         self.players = players
         self.ui = ui
         self.turn_pointer = 0
@@ -30,6 +38,8 @@ class RoundManager:
         self.round_phase = self.PHASE_START
 
     def play_round(self):
+        """Initializes the round and runs the round loop until the round ends.
+        """
         self._start_round()
 
         while True:
@@ -40,6 +50,11 @@ class RoundManager:
                 return
 
     def next_phase(self) -> dict:
+        """Advances the round state machine by one phase and returns an event.
+
+        Returns:
+            dict: An event dict describing the result of the phase.
+        """
         if self.round_phase == self.PHASE_DRAW:
             return self._draw_phase()
 
@@ -58,9 +73,16 @@ class RoundManager:
         return {"type": "unknown/error"}
 
     def _current_player(self) -> Player:
+        """Returns the player whose turn it is currently
+
+        Returns:
+            Player: current player
+        """
         return self.players[self.turn_pointer]
 
     def advance_turn(self):
+        """Advances turn_pointer to the next player.
+        """
         self.turn_pointer = (self.turn_pointer + 1) % len(self.players)
 
     def _start_round(self):
@@ -69,8 +91,10 @@ class RoundManager:
         self.round_phase = self.PHASE_DRAW
 
     def _initial_dealing(self):
-        """
-        Tiles are dealt 4 at a time at first, and then 1 extra for each player
+        """Deals initial hands to all players.
+
+        Tiles are dealt 4 at a time for three rounds, then one tile.
+        This is the same as real mahjong dealing order.
         """
         for _ in range(3):
             for player in self.players:
@@ -82,6 +106,18 @@ class RoundManager:
             player.hand.add_tile(tile)
 
     def _draw_phase(self) -> dict:
+        """Handles a player's draw.
+
+        Draws a tile for the current player or ends the round if the wall is empty.
+        If a tsumo is called by the player a tsumo event dict is returned and the round phase is
+        set to end. Otherwise returns a draw event dict describing the
+        drawn tile and sets the next phase to discard.
+
+        Returns:
+            dict: An event dict
+                - {"type": "tsumo", ...} when a tsumo is called
+                - {"type": "draw", "player": int, "tile": int}
+        """
         player = self._current_player()
         tile, end_event = self._draw_tile_or_end(player)
         if end_event is not None:
@@ -102,6 +138,11 @@ class RoundManager:
         }
 
     def _rinshan_phase(self):
+        """Handles a kan replacement draw.
+
+        Draws a rinshan tile (from the dead wall) for the current player, checks for tsumo,
+        Returns an event dict. If four kans are called retursn an abortive draw event.
+        """
         player = self._current_player()
         rinshan_draw = self.wall.draw_rinshan_tile()
         player.receive_tile(rinshan_draw)
@@ -126,6 +167,15 @@ class RoundManager:
 
 
     def _draw_tile_or_end(self, player: Player):
+        """Draws a tile or ends the game if the wall has run out of tiles.
+
+        Args:
+            player (Player): player whose turn it is
+
+        Returns:
+            tuple(int | None, dict | None): First case when a tile is drawn successfully,
+                second case when the wall is empty.
+        """
         if self.wall.live_tiles() <= 0:
             self.round_phase = self.PHASE_END
             return None, {
@@ -139,6 +189,16 @@ class RoundManager:
 
 
     def _try_tsumo(self, player: Player, tile: int):
+        """Checks if a tsumo is possible for the player and asks if they want to call tsumo.
+
+        Args:
+            player (Player): Player who has drawn a tile
+            tile (int): Last drawn tile
+
+        Returns:
+            dict | None: Returns None if tsumo is not possible or declined.
+                Otherwise a tsumo event dict.
+        """
         dora_indicators = self.wall.get_dora_indicators()
         tsumo_available, result = can_tsumo(
             player.hand.tiles,
@@ -320,9 +380,16 @@ class RoundManager:
 
 # AI GENERATED (instances of this elsewhere in the code were recommended by AI as well)
     def _clear_last_discard_state(self):
+        """Clears the information about last discard and the player who last discarded.
+        """
         self.last_discard = None
         self.last_player_index = None
 # AI GENERATED ENDS
 
     def _end_phase(self) -> dict:
+        """Handles the end phase
+
+        Returns:
+            dict: Returns an ending event.
+        """
         return {"type": "end"}
