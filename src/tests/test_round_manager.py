@@ -1,5 +1,6 @@
 import unittest
 import pytest
+from unittest.mock import patch
 from game.round_manager import RoundManager
 from core.player import Player
 from core.wall import Wall
@@ -64,6 +65,7 @@ class TestRoundManager(unittest.TestCase):
         self.game._start_round()
         self.assertEqual(self.game.round_phase, self.game.PHASE_DRAW)
 
+
     def test_draw_phase_returns_correct_draw_event(self):
         wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
         game = RoundManager(self.players, StubUI(), wall)
@@ -110,3 +112,82 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(event["tile"], 134)
         self.assertEqual(game.round_phase, game.PHASE_DISCARD)
         self.assertEqual(game.wall.kan_counter, 1)
+
+
+    def test_try_tsumo_returns_correct_end_event(self):
+        # test hand is same as the one in scoring tests, 7 han
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        game = RoundManager(self.players, StubUI(tsumo_choice=True), wall)
+        player = game.players[0]
+        player.hand.tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112, 113]
+        event = game._try_tsumo(player, 113)
+
+        expected_result = {
+                "type": "tsumo",
+                "player": 0,
+                "tile": 113,
+                "han": 7,
+                "fu": 50,
+            }
+
+        self.assertEqual(event, expected_result)
+
+
+    def test_next_phase_calls_draw_phase_handler(self):
+        self.game.round_phase = self.game.PHASE_DRAW
+        expected = "draw"
+
+        with patch.object(self.game, "_draw_phase", return_value=expected) as draw_phase:
+            event = self.game.next_phase()
+
+        draw_phase.assert_called_once_with()
+        self.assertEqual(event, expected)
+
+
+    def test_next_phase_calls_rinshan_phase_handler(self):
+        self.game.round_phase = self.game.PHASE_RINSHAN
+        expected = "rinshan"
+
+        with patch.object(self.game, "_rinshan_phase", return_value=expected) as rinshan_phase:
+            event = self.game.next_phase()
+
+        rinshan_phase.assert_called_once_with()
+        self.assertEqual(event, expected)
+
+
+    def test_next_phase_calls_discard_phase_handler(self):
+        self.game.round_phase = self.game.PHASE_DISCARD
+        expected = "discard"
+
+        with patch.object(self.game, "_discard_phase", return_value=expected) as discard_phase:
+            event = self.game.next_phase()
+
+        discard_phase.assert_called_once_with()
+        self.assertEqual(event, expected)
+
+
+    def test_next_phase_calls_calls_phase_handler(self):
+        self.game.round_phase = self.game.PHASE_CALLS
+        expected = "calls"
+
+        with patch.object(self.game, "_calls_phase", return_value=expected) as calls_phase:
+            event = self.game.next_phase()
+
+        calls_phase.assert_called_once_with()
+        self.assertEqual(event, expected)
+
+
+    def test_next_phase_calls_end_phase_handler(self):
+        self.game.round_phase = self.game.PHASE_END
+        expected = "end"
+
+        with patch.object(self.game, "_end_phase", return_value=expected) as end_phase:
+            event = self.game.next_phase()
+
+        end_phase.assert_called_once_with()
+        self.assertEqual(event, expected)
+
+
+    def test_next_phase_returns_unknown_error_for_unknown_phase(self):
+        self.game.round_phase = "UNKNOWN_PHASE"
+        self.assertEqual(self.game.next_phase(), {"type": "unknown/error"})
