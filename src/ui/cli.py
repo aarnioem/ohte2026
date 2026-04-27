@@ -71,9 +71,10 @@ class CLI:
         self._separator("DISCARD")
         tile = self._tile_to_text(event["tile"])
         print(f"Player {event['player']} discards {tile}")
-        self._render_player_discards(
+        self._render_player_discards_and_melds(
             event.get("player"),
-            event.get("player_discards", [])
+            event.get("player_discards", []),
+            event.get("player_melds", [])
         )
         print()
 
@@ -357,7 +358,7 @@ class CLI:
 
         return prefix + "[" + " ".join(rendered) + "]"
 
-    def _render_player_discards(self, player_index, discards):
+    def _render_player_discards_and_melds(self, player_index, discards, melds):
         if player_index is None:
             return
 
@@ -365,5 +366,8 @@ class CLI:
         if not tiles:
             tiles = "-"
         print(f"P{player_index} discard pile: {tiles}")
+        if melds:
+            meld_text = " ".join(self._format_meld(meld) for meld in melds)
+            print(f"P{player_index} melds: {meld_text}")
 
 # AI GENERATED CODE ENDS

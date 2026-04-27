@@ -242,7 +242,8 @@ class RoundManager:
             "type": "discard",
             "player": self.turn_pointer,
             "tile": tile,
-            "player_discards": player.discards
+            "player_discards": player.discards,
+            "player_melds": player.hand.melds
         }
 
 
