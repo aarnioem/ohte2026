@@ -130,6 +130,31 @@ class TestRoundManager(unittest.TestCase):
                 "fu": 50,
             }
 
+        self.assertEqual(game.round_phase, game.PHASE_END)
+        self.assertEqual(event, expected_result)
+
+
+    def test_resolve_ron_calls_returns_correct_end_event(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        game = RoundManager(self.players, StubUI(ron_choice=True), wall)
+
+        game.turn_pointer = 0
+        game.last_discard = 113
+
+        ron_player = game.players[1]
+        ron_player.hand.tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112]
+
+        event = game._resolve_ron_calls()
+
+        expected_result = {
+                "type": "ron",
+                "player": 1,
+                "tile": 113,
+                "han": 6,
+                "fu": 60,
+            }
+
+        self.assertEqual(game.round_phase, game.PHASE_END)
         self.assertEqual(event, expected_result)
 
 
