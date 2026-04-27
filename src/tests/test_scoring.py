@@ -17,7 +17,7 @@ def test_can_tsumo_is_false_with_too_few_tiles():
 
 def test_can_closed_tsumo_with_no_other_yaku():
     # 123m 234p 456p 789s WW
-    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 104, 116, 117]
+    tiles = [0, 4, 8, 40, 44, 48, 49, 53, 56, 96, 100, 104, 116, 117]
 
     can_win, result = can_tsumo(tiles, 117)
 
@@ -27,7 +27,7 @@ def test_can_closed_tsumo_with_no_other_yaku():
 
 def test_can_open_tsumo_with_tanyao():
     # 234m 234p 456p 888s 66s
-    tiles = [4, 8, 12, 40, 44, 48, 49, 52, 56, 92, 93]
+    tiles = [4, 8, 12, 40, 44, 48, 49, 53, 56, 92, 93]
     melds = [Meld(called_tile=100, tiles=[100, 101, 102],
                   from_player=1, meld_type="pon", open_call=True)]
 
@@ -48,7 +48,7 @@ def test_can_ron_is_false_with_too_few_tiles():
 
 def test_can_open_ron_with_tanyao():
     # 234m 234p 456p 888s 66s
-    tiles = [4, 8, 12, 40, 44, 48, 49, 52, 56, 92]
+    tiles = [4, 8, 12, 40, 44, 48, 49, 53, 56, 92]
     melds = [Meld(called_tile=100, tiles=[100, 101, 102],
                   from_player=1, meld_type="pon", open_call=True)]
 
