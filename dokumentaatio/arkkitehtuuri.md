@@ -1,6 +1,17 @@
-# Arkkitehtuuri
+# Arkkitehtuurikuvaus
 
-## Luokkakaavio
+- Pelin ymmärtämistä ja termejä suomeksi voi avata tällä sivulla, jos mahjong ei ole ennestään tuttu: https://www.mahjongopas.info/saannot/japanilainen-riichi/saannot/
+
+## Rakenne
+
+Sovellus on jaettu kolmeen osaan:
+
+- `src/core`: Pelille tarpeelliset oliot ja funktiot (hand/kädet, pelaajat, wall/muurirakenne, melds/setit, pisteytys)
+- `src/game`: Pelin kulun toteuttavat luokat (Tällä hetkellä pelkkä `RoundManager`. Myöhemmin toivottavasti myös useamman kierroksen toteuttava `MatchManager`)
+- `src/ui`: käyttöliittymä (nyt komentorivipohjainen `CLI`)
+- `src/main.py` alustaa pelin (pelaajat + UI + muuri) ja käynnistää kierroksen
+
+### Luokkakaavio
 
 ```mermaid
 classDiagram
@@ -9,8 +20,8 @@ classDiagram
 	class Hand {
 		tiles
         melds
-    add_tile(tile)
-    remove_tile(tile)
+        add_tile(tile)
+        remove_tile(tile)
 	}
 
     Player "1" --> "1" Hand
@@ -61,9 +72,25 @@ classDiagram
 
 ```
 
-## Pelilogiikka
+## Käyttöliittymä
 
-### Pelin aloitus ja ensimmäisen pelaajan vuoro
+Sovelluksella on yksinkertainen komentorivikäyttöliittymä. Sovellus tulostaa eventtien perusteella tietoa pelaajalle, ja kysyy pelaajalta tarvittavat päätökset. Viskattava tiili valitaan kädestä numeroilla 1-13, tai juuri nostettu tiili numerolla 0.
+
+## Sovelluslogiikka
+
+Pelin päävastuu on `RoundManager`-luokalla, joka on toteutettu tilakoneena:
+
+1. **Alustus/jako**: muuri (`Wall`) luodaan ja pelaajille jaetaan aloituskädet.
+2. **Vuoro**: aktiivinen pelaaja nostaa tiilen, tarkistetaan mahdollinen tsumo (voittava käsi), sitten pelaaja valitsee minkä tiilen viskaa kädestä.
+3. **Calls/vaatiminen**: muut pelaajat voivat vaatia viskauksen ja ottaa viskatun tiilen itselleen (ron, pon/kan, chii).
+4. **Vuoron vaihtuminen**: jos vaadintaa ei tehdä, vuoro siirtyy seuraavalle pelaajalle. Vaadinta myös vaihtaa aktiivisen pelaajan.
+5. **Kierroksen loppu**: kierros päättyy voittoon (tsumo/ron) tai tiilien loppumiseen muurista.
+
+`ui` renderöi eventit ja kysyy ihmispelaajan valinnat, kun taas `core` toteuttaa sääntöihin liittyvät operaatiot (esim. käden muokkaus, vaadintojen tarkistus, voittokäden validointi, pisteytyksen laskenta).
+
+### Pelilogiikan sekvenssikaaviot
+
+#### Pelin aloitus ja ensimmäisen pelaajan vuoro
 
 ```mermaid
 sequenceDiagram
