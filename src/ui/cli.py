@@ -256,6 +256,7 @@ class CLI:
         indexes = [str(i).ljust(col_width) for i in range(1, len(player.hand.tiles) + 1)]
         tiles = [self._tile_to_text(t).ljust(col_width) for t in player.hand.tiles]
 
+        self._render_melds(player)
         print("Index:", "".join(indexes))
         print("Tile: ", "".join(tiles))
 
@@ -282,6 +283,7 @@ class CLI:
             tile_row += f"   {self._tile_to_text(drawn_tile)} (last draw)"
 
         self._render_dora_indicators(dora_indicators)
+        self._render_melds(player)
         print("Index:", index_row)
         print("Tile: ", tile_row)
 
@@ -290,6 +292,13 @@ class CLI:
     def _tile_to_text(self, tile_id: int):
         # 136-id -> 34-index (ignore copy)
         tile34 = tile_id // 4
+
+        if tile_id == 16:
+            return "r5m"
+        if tile_id == 52:
+            return "r5p"
+        if tile_id == 88:
+            return "r5s"
 
         if tile34 < 9:
             value = tile34 + 1
@@ -319,6 +328,34 @@ class CLI:
 
         dora_text = " ".join(self._tile_to_text(tile) for tile in dora_indicators)
         print(f"Dora indicators: {dora_text}")
+
+    def _render_melds(self, player: Player):
+        melds = getattr(player.hand, "melds", None)
+        if not melds:
+            return
+
+        formatted = [self._format_meld(meld) for meld in melds]
+        print("Melds:", " ".join(formatted))
+
+    def _format_meld(self, meld):
+        tiles = list(meld.tiles)
+        called_tile = getattr(meld, "called_tile", None)
+        from_player = getattr(meld, "from_player", None)
+        called_used = False
+        rendered = []
+
+        for tile in tiles:
+            text = self._tile_to_text(tile)
+            if called_tile is not None and not called_used and tile == called_tile:
+                text = f"{{{text}}}"
+                called_used = True
+            rendered.append(text)
+
+        prefix = ""
+        if from_player is not None:
+            prefix = f"P{from_player} "
+
+        return prefix + "[" + " ".join(rendered) + "]"
 
     def _render_player_discards(self, player_index, discards):
         if player_index is None:
