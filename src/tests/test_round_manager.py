@@ -6,10 +6,12 @@ from core.player import Player
 from core.wall import Wall
 
 class StubUI:
-    def __init__(self, tsumo_choice=False, ron_choice=False, kan_choice=False, discard_index=0):
+    def __init__(self, tsumo_choice=False, ron_choice=False, kan_choice=False,
+                 pon_choice=False, discard_index=0):
         self.tsumo_choice = tsumo_choice
         self.ron_choice = ron_choice
         self.kan_choice = kan_choice
+        self.pon_choice = pon_choice
         self.discard_index = discard_index
         self.rendered_events = []
 
@@ -24,6 +26,9 @@ class StubUI:
 
     def get_kan_choice(self, player, tile):
         return self.kan_choice
+
+    def get_pon_choice(self, player, tile):
+        return self.pon_choice
 
     def get_discard_choice(self, player):
         return player.hand.tiles[self.discard_index]
@@ -90,6 +95,32 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(event["player"], 1)
         self.assertEqual(game.turn_pointer, 1)
         self.assertEqual(game.round_phase, game.PHASE_RINSHAN)
+
+
+    def test_try_pon_call_returns_correct_event(self):
+        ui = StubUI(pon_choice=True)
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        game = RoundManager(self.players, ui=ui, wall=wall)
+
+        game.turn_pointer = 0
+        game.last_discard = 0
+        game.last_player_index = 0
+
+        pon_player_index = 1
+        pon_player = game.players[pon_player_index]
+
+        # pon on 1m (IDs 0, 1 and 2)
+        pon_player.hand.tiles = [1, 2, 8, 12, 16, 20, 24, 28, 40, 44, 48, 52, 56]
+
+        event = game._try_pon_call(pon_player_index, pon_player)
+
+        expected_event = {
+                "type": "pon",
+                "player": 1,
+                "tile": 0,
+                }
+
+        self.assertEqual(event, expected_event)
 
 
     def test_four_kans_abort(self):
@@ -216,3 +247,4 @@ class TestRoundManager(unittest.TestCase):
     def test_next_phase_returns_unknown_error_for_unknown_phase(self):
         self.game.round_phase = "UNKNOWN_PHASE"
         self.assertEqual(self.game.next_phase(), {"type": "unknown/error"})
+

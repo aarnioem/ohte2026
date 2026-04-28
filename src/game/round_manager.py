@@ -312,36 +312,53 @@ class RoundManager:
     def _resolve_pon_kan_calls(self):
         for offset in range(1, 4):
             player_index = (offset + self.turn_pointer) % 4
-            pon_kan_player = self.players[player_index]
+            player = self.players[player_index]
 
-            if pon_kan_player.hand.can_open_kan(self.last_discard):
-                if self.ui.get_kan_choice(pon_kan_player, self.last_discard):
-                    called_tile = self.last_discard
-                    pon_kan_player.hand.apply_kan(self.last_discard, self.last_player_index)
-                    self.turn_pointer = player_index
-                    self.round_phase = self.PHASE_RINSHAN
-                    self.pending_dora_reveal = True
-                    self._clear_last_discard_state()
-                    return {
-                        "type": "kan",
-                        "player": player_index,
-                        "tile": called_tile,
-                    }
+            kan_event = self._try_open_kan_call(player_index, player)
+            if kan_event is not None:
+                return kan_event
 
-            if pon_kan_player.hand.can_pon(self.last_discard):
-                if self.ui.get_pon_choice(pon_kan_player, self.last_discard):
-                    called_tile = self.last_discard
-                    pon_kan_player.hand.apply_pon(self.last_discard, self.last_player_index)
-                    self.turn_pointer = player_index
-                    self.round_phase = self.PHASE_DISCARD
-                    self._clear_last_discard_state()
-                    return {
-                        "type": "pon",
-                        "player": player_index,
-                        "tile": called_tile,
-                    }
+            pon_event = self._try_pon_call(player_index, player)
+            if pon_event is not None:
+                return pon_event
 
         return None
+
+    def _try_open_kan_call(self, player_index: int, player: Player):
+        if not player.hand.can_open_kan(self.last_discard):
+            return None
+        if not self.ui.get_kan_choice(player, self.last_discard):
+            return None
+
+        called_tile = self.last_discard
+        player.hand.apply_kan(self.last_discard, self.last_player_index)
+        self._set_call_state(player_index, self.PHASE_RINSHAN, reveal_dora=True)
+        return {
+            "type": "kan",
+            "player": player_index,
+            "tile": called_tile,
+        }
+
+    def _try_pon_call(self, player_index: int, player: Player):
+        if not player.hand.can_pon(self.last_discard):
+            return None
+        if not self.ui.get_pon_choice(player, self.last_discard):
+            return None
+
+        called_tile = self.last_discard
+        player.hand.apply_pon(self.last_discard, self.last_player_index)
+        self._set_call_state(player_index, self.PHASE_DISCARD)
+        return {
+            "type": "pon",
+            "player": player_index,
+            "tile": called_tile,
+        }
+
+    def _set_call_state(self, player_index: int, next_phase: str, reveal_dora: bool = False):
+        self.turn_pointer = player_index
+        self.round_phase = next_phase
+        self.pending_dora_reveal = reveal_dora
+        self._clear_last_discard_state()
 
 
     def _resolve_chii_calls(self):
