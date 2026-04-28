@@ -18,4 +18,5 @@
 | 25.4. | 4    | Doran toteutus, rinshan toteutus. Doraindikaattorit näkyviin UI:hin. Testejä.|
 | 26.4. | 2    | Docstring dokumentaatiota, arkkitehtuurikuvauksen tekoa|
 | 27.4. | 5    | Lisää testejä round managerille. Docstring dokumentaatiota, lisää arkkitehtuurikuvauksen tekoa. UIn parantelua. Käyttöohjeen tekoa. Punaiset vitoset lisätty.|
-| yht   | 56   | |
+| 28.4. | 2    | Refaktorointia ja testin tekoa. UIn refaktorointia|
+| yht   | 58   | |
