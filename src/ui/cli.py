@@ -18,6 +18,14 @@ class CLI:
         return self._prompts.get_discard_choice(player, dora_indicators)
 
 
+    def get_riichi_choice(self, player: Player):
+        return self._prompts.get_riichi_choice(player)
+
+
+    def get_riichi_discard_choice(self, player: Player, valid_discards, dora_indicators=None):
+        return self._prompts.get_riichi_discard_choice(player, valid_discards, dora_indicators)
+
+
     def get_tsumo_choice(self, player: Player, drawn_tile: int):
         return self._prompts.get_tsumo_choice(player, drawn_tile)
 

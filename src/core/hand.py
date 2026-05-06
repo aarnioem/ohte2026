@@ -4,6 +4,7 @@ class Hand:
     def __init__(self):
         self.tiles = []
         self.melds = []
+        self.is_closed = True
 
     def tile_amount(self):
         """Returns the number of playable tiles in hand
@@ -275,6 +276,7 @@ class Hand:
             open_call=True,
         )
         self.melds.append(meld)
+        self.is_closed = False
         return meld
 
 
@@ -306,6 +308,7 @@ class Hand:
             open_call=True,
         )
         self.melds.append(meld)
+        self.is_closed = False
         return meld
 
 
@@ -354,5 +357,6 @@ class Hand:
             open_call=True,
         )
         self.melds.append(meld)
+        self.is_closed = False
         return meld
 # AI GENERATED CODE ENDS

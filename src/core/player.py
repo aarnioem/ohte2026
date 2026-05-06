@@ -11,6 +11,8 @@ class Player:
         self.discards = [] # change this to a class later maybe
         self.score = 25000
         self.riichi = False
+        self.ippatsu = False
+        self.riichi_declared_tile = None
         self.last_drawn_tile = None
 
     def is_human(self):

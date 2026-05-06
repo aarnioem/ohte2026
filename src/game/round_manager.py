@@ -1,6 +1,6 @@
 from core.player import Player
 from core.wall import Wall
-from core.scoring import can_tsumo, can_ron
+from core.scoring import can_tsumo, can_ron, get_tenpai_discards, is_tenpai_after_discard
 
 
 class RoundManager:
@@ -33,6 +33,9 @@ class RoundManager:
         self.last_discard = None
         self.last_player_index = None
         self.pending_dora_reveal = False
+
+        self.riichi_sticks = 0
+        self.riichi_declared_by = set()
 
         self.wall = wall
         self.round_phase = self.PHASE_START
@@ -129,6 +132,9 @@ class RoundManager:
         tsumo_event = self._try_tsumo(player, tile)
         if tsumo_event is not None:
             return tsumo_event
+
+        if player.ippatsu:
+            player.ippatsu = False
 
         self.round_phase = self.PHASE_DISCARD
         return {
@@ -230,7 +236,11 @@ class RoundManager:
         player = self._current_player()
 
         dora_indicators = self.wall.get_dora_indicators()
-        tile = self.ui.get_discard_choice(player, dora_indicators)
+        riichi_tile = self._try_declare_riichi(player, dora_indicators)
+        if riichi_tile is None:
+            tile = self.ui.get_discard_choice(player, dora_indicators)
+        else:
+            tile = riichi_tile
 
         player.discard(tile)
         self.last_discard = tile
@@ -246,6 +256,39 @@ class RoundManager:
             "player_melds": player.hand.melds
         }
 
+# AI GENERATED STARTS
+
+    def _try_declare_riichi(self, player: Player, dora_indicators=None):
+        if player.riichi:
+            return None
+
+        if not player.hand.is_closed:
+            return None
+
+        if player.score < 1000:
+            return None
+
+        if not is_tenpai_after_discard(player.hand.tiles, melds=player.hand.melds):
+            return None
+
+        valid_discards = get_tenpai_discards(player.hand.tiles, melds=player.hand.melds)
+        riichi_tile = self.ui.get_riichi_discard_choice(
+            player,
+            valid_discards,
+            dora_indicators,
+        )
+        if riichi_tile is None:
+            return None
+
+        player.riichi = True
+        player.ippatsu = True
+        player.riichi_declared_tile = riichi_tile
+        player.score -= 1000
+        self.riichi_sticks += 1
+        self.riichi_declared_by.add(self.turn_pointer)
+        return riichi_tile
+
+# AI GENERATED ENDS
 
     def _calls_phase(self) -> dict:
         """Resolve calls in priority order: ron -> kan/pon -> chii."""
@@ -313,6 +356,8 @@ class RoundManager:
         for offset in range(1, 4):
             player_index = (offset + self.turn_pointer) % 4
             player = self.players[player_index]
+            if player.riichi:
+                continue
 
             kan_event = self._try_open_kan_call(player_index, player)
             if kan_event is not None:
@@ -368,6 +413,8 @@ class RoundManager:
         # only next player may call chii
         player_index = (self.last_player_index + 1) % len(self.players)
         chii_player = self.players[player_index]
+        if chii_player.riichi:
+            return None
 
         chii_options = chii_player.hand.get_chii_options(self.last_discard)
         if not chii_options:

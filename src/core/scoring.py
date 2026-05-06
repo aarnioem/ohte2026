@@ -1,6 +1,8 @@
 from mahjong.hand_calculating.hand import HandCalculator
 from mahjong.hand_calculating.hand_config import HandConfig, OptionalRules
 from mahjong.meld import Meld as MahjongMeld
+from mahjong.shanten import Shanten
+from mahjong.tile import TilesConverter
 
 # AI has been used lot of the scoring functions,
 # but it would be difficult to mark each part separately here.
@@ -59,6 +61,54 @@ def _meld_tiles_136(melds):
     for meld in melds:
         tiles.extend(meld.tiles)
     return tiles
+
+
+def _tiles_34_counts(tiles_136, melds=None):
+    all_tiles = list(tiles_136) + _meld_tiles_136(melds)
+    return TilesConverter.to_34_array(all_tiles)
+
+
+def get_tenpai_discards(tiles_136, *, melds=None):
+    """Returns discards that leave the hand in tenpai.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand (usually 14 tiles after draw)
+        melds (list[Meld], optional): List of melds in the hand. Defaults to None.
+
+    Returns:
+        list[int]: Tile ids from the hand that leave the hand in tenpai after discarding.
+    """
+    if not tiles_136:
+        return []
+
+    counts = _tiles_34_counts(tiles_136, melds)
+    shanten = Shanten()
+    valid = []
+
+    # Try removing one tile from hand
+    for tile in tiles_136:
+        tile34 = tile // 4
+        if counts[tile34] <= 0:
+            continue
+        counts[tile34] -= 1
+        if shanten.calculate_shanten(counts) == 0:
+            valid.append(tile)
+        counts[tile34] += 1
+
+    return valid
+
+
+def is_tenpai_after_discard(tiles_136, *, melds=None):
+    """Checks whether any discard from the current hand leads to tenpai.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand (usually 14 tiles after draw)
+        melds (list[Meld], optional): List of melds in the hand. Defaults to None.
+
+    Returns:
+        bool: True if discarding one tile can leave the hand in tenpai.
+    """
+    return len(get_tenpai_discards(tiles_136, melds=melds)) > 0
 
 
 def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi=False,

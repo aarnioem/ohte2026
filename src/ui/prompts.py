@@ -101,6 +101,67 @@ class CLIPrompts:
 
 # AI GENERATED CODE STARTS
 
+    def get_riichi_choice(self, player: Player):
+        if not player.is_human():
+            return False
+
+        while True:
+            self._renderer.separator("RIICHI")
+            self._print_hand(player)
+            choice = input("Declare riichi? (y/n): ").strip().lower()
+            if choice in ("y", "yes"):
+                print()
+                return True
+            if choice in ("n", "no"):
+                print()
+                return False
+            print("Please choose y or n.")
+
+    def get_riichi_discard_choice(self, player: Player, valid_discards, dora_indicators=None):
+        if not player.is_human():
+            return None
+
+        if not valid_discards:
+            return None
+
+        valid_set = set(valid_discards)
+
+        while True:
+            self._renderer.separator("RIICHI")
+            regular_tiles, drawn_tile = self._print_discard_hand(player, dora_indicators)
+
+            valid_indexes = []
+            for index, tile in enumerate(regular_tiles, start=1):
+                if tile in valid_set:
+                    valid_indexes.append(str(index))
+
+            if drawn_tile is not None and drawn_tile in valid_set:
+                valid_indexes.append("0")
+
+            indexes_text = ", ".join(valid_indexes) if valid_indexes else "-"
+            print(f"Valid riichi discards: {indexes_text}")
+
+            choice = input("Declare riichi and choose discard (index or n to skip): ")
+            choice = choice.strip().lower()
+
+            if choice in ("n", "no"):
+                print()
+                return None
+
+            if choice.isdigit():
+                selected_index = int(choice)
+                if selected_index == 0 and drawn_tile is not None and drawn_tile in valid_set:
+                    print()
+                    return drawn_tile
+
+                if 1 <= selected_index <= len(regular_tiles):
+                    tile = regular_tiles[selected_index - 1]
+                    if tile in valid_set:
+                        print()
+                        return tile
+
+            print("Please choose a valid riichi discard index or n.")
+
     def get_chii_choice(self, player: Player, discarded_tile: int, options):
         if not player.is_human():
             return None
