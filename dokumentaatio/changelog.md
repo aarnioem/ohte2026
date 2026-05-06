@@ -24,3 +24,7 @@
 - calling 4 kans in a round ends the round (suukaikan rule)
 - UI shows melds
 - Red fives have been enabled
+
+### final
+
+- added riichi declaration
