@@ -17,7 +17,8 @@ Basic Japanese four player Riichi Mahjong.
 - [x] Chii, Pon, Kan calls
     - daiminkan still missing
 - [x] Dora indicators
-- Uradora - Partially done, Riichi is not yet functional
+- [x] Riichi declaration
+- [x] Uradora
 - Tenpai indicator that shows waits when a hand is ready
 - Furiten indicator
 - Ryuukyoku/Exhaustive Draw points calculation
