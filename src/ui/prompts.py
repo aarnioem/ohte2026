@@ -99,6 +99,8 @@ class CLIPrompts:
                 return False
             print("Please choose y or n.")
 
+# AI GENERATED CODE STARTS
+
     def get_chii_choice(self, player: Player, discarded_tile: int, options):
         if not player.is_human():
             return None
@@ -167,3 +169,5 @@ class CLIPrompts:
         print("Tile: ", tile_row)
 
         return regular_tiles, drawn_tile
+
+# AI GENERATED CODE ENDS

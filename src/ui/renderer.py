@@ -118,6 +118,8 @@ class CLIRenderer:
         print("Round ended.")
         print()
 
+# AI GENERATED CODE STARTS
+
     def tile_to_text(self, tile_id: int):
         # 136-id -> 34-index (ignore copy)
         tile34 = tile_id // 4
@@ -197,3 +199,5 @@ class CLIRenderer:
         if melds:
             meld_text = " ".join(self.format_meld(meld) for meld in melds)
             print(f"P{player_index} melds: {meld_text}")
+
+# AI GENERATED CODE ENDS
