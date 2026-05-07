@@ -222,6 +222,8 @@ class RoundManager:
                 han = result.han
                 fu = result.fu
 
+            self._award_riichi_sticks(player)
+
             return {
                 "type": "tsumo",
                 "player": self.turn_pointer,
@@ -231,6 +233,10 @@ class RoundManager:
             }
         return None
 
+    def _award_riichi_sticks(self, player):
+        pot = self.riichi_sticks * 1000
+        player.score += pot
+        self.riichi_sticks = 0
 
     def _discard_phase(self) -> dict:
         player = self._current_player()
@@ -349,6 +355,8 @@ class RoundManager:
                     self.players[self.last_player_index].score -= cost
                     ron_player.score += cost
                 # AI generated code ends
+
+                self._award_riichi_sticks(ron_player)
 
                 deal_in_player = self.last_player_index
 
