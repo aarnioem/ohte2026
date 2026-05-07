@@ -253,7 +253,8 @@ class RoundManager:
         if 'additional' in cost:
             # non-dealer win
             for i, p in enumerate(self.players):
-                if i == self.turn_pointer: continue
+                if i == self.turn_pointer:
+                    continue
                 if i == self.dealer_index:
                     p.score -= cost['main']
                     player.score += cost['main']
@@ -263,7 +264,8 @@ class RoundManager:
         else:
             # dealer win
             for i, p in enumerate(self.players):
-                if i == self.turn_pointer: continue
+                if i == self.turn_pointer:
+                    continue
                 p.score -= cost['main']
                 player.score += cost['main']
 # AI GENERATED ENDS
