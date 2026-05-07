@@ -19,5 +19,5 @@
 | 26.4. | 2    | Docstring dokumentaatiota, arkkitehtuurikuvauksen tekoa|
 | 27.4. | 5    | Lisää testejä round managerille. Docstring dokumentaatiota, lisää arkkitehtuurikuvauksen tekoa. UIn parantelua. Käyttöohjeen tekoa. Punaiset vitoset lisätty.|
 | 28.4. | 2    | Refaktorointia ja testin tekoa. UIn refaktorointia|
-| 7.5. | 2    | Riichin toteutus |
-| yht   | 60   | |
+| 7.5. | 4    | Riichin toteutus. Pisteiden maksu. Tsumon oikea pisteytys. |
+| yht   | 62   | |

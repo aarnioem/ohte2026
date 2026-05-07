@@ -28,3 +28,5 @@
 ### final
 
 - added riichi declaration
+- added proper seating order for winds
+- round end score payouts
