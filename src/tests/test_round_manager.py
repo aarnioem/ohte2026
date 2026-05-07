@@ -159,6 +159,7 @@ class TestRoundManager(unittest.TestCase):
                 "tile": 113,
                 "han": 7,
                 "fu": 50,
+                "cost": {'main': 6000, 'additional': 6000, 'main_bonus': 0, 'additional_bonus': 0, 'kyoutaku_bonus': 0, 'total': 18000, 'yaku_level': 'haneman'}
             }
 
         self.assertEqual(game.round_phase, game.PHASE_END)
