@@ -88,6 +88,7 @@ class CLIRenderer:
         fu = event.get("fu")
 
         print(f"Player {event['player']} declares ron with {tile} ({han} han, {fu} fu)")
+        print(f"Player {event['deal_in_player']} pays out {event['cost']} points.")
         print()
 
     def _render_calls(self):

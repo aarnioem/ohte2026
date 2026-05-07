@@ -341,13 +341,26 @@ class RoundManager:
             if ron_available and self.ui.get_ron_choice(ron_player, self.last_discard):
                 winning_tile = self.last_discard
                 self.round_phase = self.PHASE_END
+
+                # AI generated code
+                cost = 0
+                if result is not None and result.cost and self.last_player_index is not None:
+                    cost = result.cost['main']
+                    self.players[self.last_player_index].score -= cost
+                    ron_player.score += cost
+                # AI generated code ends
+
+                deal_in_player = self.last_player_index
+
                 self._clear_last_discard_state()
                 return {
                     "type": "ron",
                     "player": player_index,
+                    "deal_in_player": deal_in_player,
                     "tile": winning_tile,
                     "han": han,
                     "fu": fu,
+                    "cost": cost,
                 }
 
         return None

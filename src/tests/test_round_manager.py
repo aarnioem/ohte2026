@@ -171,6 +171,7 @@ class TestRoundManager(unittest.TestCase):
 
         game.turn_pointer = 0
         game.last_discard = 113
+        game.last_player_index = 0
 
         ron_player = game.players[1]
         ron_player.hand.tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112]
@@ -180,9 +181,11 @@ class TestRoundManager(unittest.TestCase):
         expected_result = {
                 "type": "ron",
                 "player": 1,
+                "deal_in_player": 0,
                 "tile": 113,
                 "han": 6,
                 "fu": 60,
+                "cost": 12000,
             }
 
         self.assertEqual(game.round_phase, game.PHASE_END)
