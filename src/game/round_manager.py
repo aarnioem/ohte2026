@@ -250,6 +250,12 @@ class RoundManager:
 
 # AI GENERATED
     def _calculate_tsumo_scores(self, cost, player: Player):
+        """Calculates and takes the points from other players for a winning tsumo hand.
+
+        Args:
+            cost (ScoresResult): Cost from the HandResponse object
+            player (Player): Winning player
+        """
         if 'additional' in cost:
             # non-dealer win
             for i, p in enumerate(self.players):
@@ -271,7 +277,12 @@ class RoundManager:
 # AI GENERATED ENDS
 
 
-    def _award_riichi_sticks(self, player):
+    def _award_riichi_sticks(self, player: Player):
+        """Gives the available riichi sticks to a player and resets riichi stick counter
+
+        Args:
+            player (Player): Winning player
+        """
         pot = self.riichi_sticks * 1000
         player.score += pot
         self.riichi_sticks = 0
