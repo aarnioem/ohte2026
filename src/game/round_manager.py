@@ -18,7 +18,7 @@ class RoundManager:
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
 
-    def __init__(self, players: list[Player], ui, wall: Wall):
+    def __init__(self, players: list[Player], ui, wall: Wall, dealer_index=0):
         """Initializes the round manager.
 
         Args:
@@ -27,6 +27,7 @@ class RoundManager:
             wall (Wall): The tile wall for the round.
         """
         self.players = players
+        self.dealer_index = dealer_index
         self.ui = ui
         self.turn_pointer = 0
 
@@ -82,6 +83,15 @@ class RoundManager:
             Player: current player
         """
         return self.players[self.turn_pointer]
+
+    def _player_wind(self, player_index):
+        """Returns the player's seat wind. East = 27, South = 28, West = 29, North = 30
+
+        Args:
+            player_index (int):
+        """
+        offset = (player_index - self.dealer_index) % 4
+        return 27 + offset
 
     def advance_turn(self):
         """Advances turn_pointer to the next player.
@@ -210,6 +220,7 @@ class RoundManager:
             player.hand.tiles,
             tile,
             riichi=player.riichi,
+            player_wind=self._player_wind(self.turn_pointer),
             melds=player.hand.melds,
             dora_indicators=dora_indicators
         )
@@ -218,10 +229,13 @@ class RoundManager:
 
             han = None
             fu = None
+            cost = None
             if result is not None:
                 han = result.han
                 fu = result.fu
+                cost = result.cost
 
+            self._calculate_tsumo_scores(cost, player)
             self._award_riichi_sticks(player)
 
             return {
@@ -230,8 +244,30 @@ class RoundManager:
                 "tile": tile,
                 "han": han,
                 "fu": fu,
+                "cost": cost,
             }
         return None
+
+# AI GENERATED
+    def _calculate_tsumo_scores(self, cost, player: Player):
+        if 'additional' in cost:
+            # non-dealer win
+            for i, p in enumerate(self.players):
+                if i == self.turn_pointer: continue
+                if i == self.dealer_index:
+                    p.score -= cost['main']
+                    player.score += cost['main']
+                else:
+                    p.score -= cost['additional']
+                    player.score += cost['additional']
+        else:
+            # dealer win
+            for i, p in enumerate(self.players):
+                if i == self.turn_pointer: continue
+                p.score -= cost['main']
+                player.score += cost['main']
+# AI GENERATED ENDS
+
 
     def _award_riichi_sticks(self, player):
         pot = self.riichi_sticks * 1000
@@ -333,6 +369,7 @@ class RoundManager:
                 ron_player.hand.tiles,
                 self.last_discard,
                 riichi=ron_player.riichi,
+                player_wind=self._player_wind(player_index),
                 melds=ron_player.hand.melds,
                 dora_indicators=dora_indicators
             )
