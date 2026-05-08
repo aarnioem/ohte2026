@@ -40,11 +40,21 @@ class TestHand(unittest.TestCase):
         discard_tile = 2
         self.assertTrue(self.hand.can_pon(discard_tile))
 
+    def test_can_not_pon(self):
+        self.hand.tiles = [0, 5, 12, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        discard_tile = 2
+        self.assertFalse(self.hand.can_pon(discard_tile))
+
     def test_can_chii(self):
         # hand has 1m and 2m, chii for 3m
         self.hand.tiles = [0, 1, 4, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
         discard_tile = 8
         self.assertTrue(self.hand.can_chii(discard_tile))
+
+    def test_can_not_chii(self):
+        self.hand.tiles = [0, 1, 4, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        discard_tile = 112
+        self.assertFalse(self.hand.can_chii(discard_tile))
 
     def test_can_open_kan(self):
         # three 1m, open kan for 1m
@@ -72,6 +82,27 @@ class TestHand(unittest.TestCase):
         self.assertEqual(meld, expected_meld)
         self.assertTrue(meld in self.hand.melds)
 
+    def test_apply_invalid_chii_pattern(self):
+        # hand has 1m and 2m, chii for 3m
+        self.hand.tiles = [0, 1, 4, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        discard_tile = 113
+        with pytest.raises(ValueError):
+            self.hand.apply_chii(discard_tile, from_player=0, use_tiles=[0, 4])
+
+    def test_apply_chii_no_tiles_raises(self):
+        # hand has 1m and 2m, chii for 3m
+        self.hand.tiles = [0, 1, 4, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        discard_tile = 8
+        with pytest.raises(ValueError):
+            self.hand.apply_chii(discard_tile, from_player=0, use_tiles=[])
+
+    def test_apply_chii_wrong_tiles_raises(self):
+        # hand has 1m and 2m, chii for 3m
+        self.hand.tiles = [0, 1, 4, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        discard_tile = 8
+        with pytest.raises(ValueError):
+            self.hand.apply_chii(discard_tile, from_player=0, use_tiles=[90, 95])
+
     def test_apply_kan(self):
         # three 1m, open kan for 1m
         self.hand.tiles = [0, 1, 2, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
@@ -81,3 +112,15 @@ class TestHand(unittest.TestCase):
         meld = self.hand.apply_kan(discard_tile, from_player=0)
         self.assertEqual(meld, expected_meld)
         self.assertTrue(meld in self.hand.melds)
+
+    def test_get_chii_options_with_none_available(self):
+        self.hand.tiles = [0, 1, 2, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        options = self.hand.get_chii_options(135)
+
+        self.assertEqual(options, [])
+
+    def test_get_chii_options_available(self):
+        self.hand.tiles = [0, 4, 20, 22, 30, 31, 50, 66, 70, 79, 90, 95, 112]
+        options = self.hand.get_chii_options(8)
+
+        self.assertEqual(options, [[0, 4]])

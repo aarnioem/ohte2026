@@ -6,16 +6,20 @@ from core.wall import Wall
 from ui.controller import AIController
 
 class StubController(AIController):
-    def __init__(self, *, kan_choice=False, pon_choice=False) -> None:
+    def __init__(self, *, kan_choice=False, pon_choice=False, discard_choice=0) -> None:
         super().__init__()
         self.kan_choice = kan_choice
         self.pon_choice = pon_choice
+        self.discard_choice = discard_choice
 
     def get_kan_choice(self, player_data, game_state):
         return self.kan_choice
 
     def get_pon_choice(self, player_data, game_state):
         return self.pon_choice
+    
+    def get_discard_choice(self, player_data, game_state):
+        return self.discard_choice
 
 class TestRoundManager(unittest.TestCase):
     def setUp(self):
@@ -236,3 +240,20 @@ class TestRoundManager(unittest.TestCase):
     def test_next_phase_returns_unknown_error_for_unknown_phase(self):
         self.game.round_phase = "UNKNOWN_PHASE"
         self.assertEqual(self.game.next_phase(), {"type": "unknown/error"})
+
+
+    def test_discard_phase_returns_correct_event(self):
+        self.game.players[0].controller = StubController(discard_choice=1)
+        self.game.players[0].hand.tiles = [1, 2, 3, 36, 37, 38, 72, 73, 74, 99, 102, 107, 112, 134]
+
+        expected = { 
+            "type": "discard", 
+            "player": 0, 
+            "tile": 1, 
+            "player_discards": [1], 
+            "player_melds": []
+        }
+
+        result = self.game._discard_phase()
+
+        self.assertEqual(result, expected)
