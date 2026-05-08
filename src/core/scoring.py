@@ -134,6 +134,25 @@ def get_winning_tiles(tiles_136, *, melds=None):
 
     return waiting_tiles
 
+def is_furiten(tiles_136, discards_136, melds=None):
+    """Checks if a hand is in a furiten state due to past discards.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand
+        discards_136 (list[int]): list of past discarded tile ids
+        melds (list[Meld], optional): List of melds in the hand. Defaults to None.
+
+    Returns:
+        bool: True if the player is in permanent furiten, otherwise False
+    """
+    wait_tiles_34 = get_winning_tiles(tiles_136, melds=melds)
+    discards_34 = {tile // 4 for tile in discards_136}
+
+    for wait in wait_tiles_34:
+        if wait in discards_34:
+            return True
+    return False
+
 
 def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi=False,
                   player_wind=None, round_wind=None, melds=None, dora_indicators=None,

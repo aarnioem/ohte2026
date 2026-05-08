@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from core.scoring import can_tsumo, can_ron, calculate_win, get_waiting_tiles
+from core.scoring import can_tsumo, can_ron, calculate_win, get_winning_tiles, is_furiten
 from core.melds import Meld
 
 
@@ -119,6 +119,18 @@ def test_get_winning_tiles():
 
     expected = [23, 26]
 
-    result = get_waiting_tiles(tiles)
+    result = get_winning_tiles(tiles)
 
     assert expected == result
+
+def test_is_furiten_when_in_furiten():
+    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 116, 117]
+    discards = [104]
+
+    assert is_furiten(tiles, discards, melds=None)
+
+def test_is_furiten_when_not_in_furiten():
+    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 116, 117]
+    discards = [15]
+
+    assert not is_furiten(tiles, discards, melds=None)

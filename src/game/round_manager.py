@@ -1,6 +1,7 @@
 from core.player import Player
 from core.wall import Wall
 from core.scoring import can_tsumo, can_ron, get_tenpai_discards, is_tenpai_after_discard
+from core.scoring import is_furiten
 
 
 class RoundManager:
@@ -376,6 +377,9 @@ class RoundManager:
         for offset in range(1, 4):
             player_index = (offset + self.turn_pointer) % 4
             ron_player = self.players[player_index]
+
+            if is_furiten(ron_player.hand.tiles, ron_player.discards, melds=ron_player.hand.melds):
+                continue
 
             dora_indicators=self.wall.get_dora_indicators()
             ron_available, result = can_ron(
