@@ -20,4 +20,5 @@
 | 27.4. | 5    | Lisää testejä round managerille. Docstring dokumentaatiota, lisää arkkitehtuurikuvauksen tekoa. UIn parantelua. Käyttöohjeen tekoa. Punaiset vitoset lisätty.|
 | 28.4. | 2    | Refaktorointia ja testin tekoa. UIn refaktorointia|
 | 7.5. | 4    | Riichin toteutus. Pisteiden maksu. Tsumon oikea pisteytys. |
-| yht   | 62   | |
+| 8.5. | 8    | Furitenin toteutus. Paremman UI systeemin suunnittelua ja toteutuksen aloitus. Refaktorointia. Rich UI:n toteutusta. RichPrompts luokan suunnittelua ja toteutusta. |
+| yht   | 70   | |
