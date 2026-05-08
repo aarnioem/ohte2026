@@ -50,7 +50,7 @@ class RoundManager:
         while True:
             event = self.next_phase()
             if self.renderer:
-                self.renderer.render(event, self._current_player())
+                self.renderer.render(event, self.get_game_state(), self._current_player())
 
             if self.round_phase == self.PHASE_END:
                 return
@@ -63,7 +63,8 @@ class RoundManager:
             "wall_remaining": self.wall.live_tiles(),
             "discards": {i: p.discards for i, p in enumerate(self.players)},
             "melds": {i: p.hand.melds for i, p in enumerate(self.players)},
-            "riichi_declared": self.riichi_declared_by
+            "riichi_declared": self.riichi_declared_by,
+            "player_hands": {i: p.hand.tiles for i, p in enumerate(self.players)}
         }
 # AI generated ends
 
