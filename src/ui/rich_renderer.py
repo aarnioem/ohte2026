@@ -1,6 +1,9 @@
-from rich.console import Console
+from rich.console import Console, Group
 from rich.layout import Layout
 from rich.panel import Panel
+from rich.table import Table
+from rich import box
+from core.player import Player
 
 class RichRenderer:
     def __init__(self) -> None:
@@ -12,9 +15,10 @@ class RichRenderer:
         layout = Layout()
 
         layout.split_column(
-            Layout(name="top", size=7),
+            Layout(name="header", size=2),
+            Layout(name="top", size=9),
             Layout(name="middle"),
-            Layout(name="bottom", size=7)
+            Layout(name="bottom", size=9)
         )
 
         layout["middle"].split_row(
@@ -25,7 +29,7 @@ class RichRenderer:
 
         return layout
 
-    def render(self, event: dict, game_state: dict, current_player):
+    def render(self, event: dict, game_state: dict, current_player: Player):
         """Fills the layout with data and prints it."""
         layout = self.create_layout()
 
@@ -37,16 +41,32 @@ class RichRenderer:
 # AI GENERATED CODE STARTS
         compass_info = f"[bold yellow]Round Information[/bold yellow]\nWall: {game_state.get('wall_remaining', 70)} tiles left\nDora: 🀫\n\n[cyan]{event_msg}[/cyan]"
 # AI GENERATED CODE ends
-        layout["center"].update(Panel(compass_info, title="Center", border_style="cyan"))
+        layout["center"].update(Panel(compass_info, title="Center", border_style="cyan", box=box.ASCII))
 
         discards = game_state.get("discards", {})
         hands = game_state.get("player_hands", {0: [], 1: [], 2: [], 3: []})
 
+        layout["header"].update(Panel("", title="NotenMahjong", border_style="red", box=box.ASCII))
 
-        layout["bottom"].update(Panel(f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nHand:\n{self._format_hand(hands.get(0, []))}", title="You (Bottom) - P0", border_style="bold green"))
-        layout["right"].update(Panel(f"Discards:\n{self._format_discards(discards.get(1, []))}\n\nUnknown Tiles: {len(hands.get(1, []))}", title="Player 1 (Right)"))
-        layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}", title="Player 2 (Top)"))
-        layout["left"].update(Panel(f"Discards:\n{self._format_discards(discards.get(3, []))}\n\nUnknown Tiles: {len(hands.get(3, []))}", title="Player 3 (Left)"))
+        layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}",
+                                   title="Player 2 (Top)",
+                                   box=box.ASCII))
+
+        layout["left"].update(Panel(f"Discards:\n{self._format_discards(discards.get(3, []))}\n\nUnknown Tiles: {len(hands.get(3, []))}",
+                                    title="Player 3 (Left)",
+                                    box=box.ASCII))
+
+        layout["right"].update(Panel(f"Discards:\n{self._format_discards(discards.get(1, []))}\n\nUnknown Tiles: {len(hands.get(1, []))}",
+                                     title="Player 1 (Right)",
+                                     box=box.ASCII))
+
+        discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nHand:"
+        hand_table = self._format_hand(hands.get(0, []), current_player.last_drawn_tile)
+
+        layout["bottom"].update(Panel(Group(discard_text, hand_table),
+                                      title="You (Bottom) - P0",
+                                      border_style="bold green",
+                                      box=box.ASCII))
 
         self.console.clear()
         self.console.print(layout)
@@ -61,12 +81,35 @@ class RichRenderer:
 
         return formatted.strip()
 
-    def _format_hand(self, hand_tiles: list):
+    def _format_hand(self, hand_tiles: list, drawn_tile=None):
         if not hand_tiles:
             return ""
-        sorted_tiles = sorted(hand_tiles)
-        formatted = " ".join([self.tile_to_text(t) for t in sorted_tiles])
-        return formatted
+
+        if drawn_tile is not None and drawn_tile in hand_tiles:
+            regular_tiles = [tile for tile in hand_tiles if tile != drawn_tile]
+        else:
+            regular_tiles = hand_tiles
+
+        table = Table(show_header=False, show_edge=False, padding=(0, 1))
+
+        for _ in regular_tiles:
+            table.add_column(justify="center")
+
+        if drawn_tile is not None:
+            table.add_column(justify="center")
+            table.add_column(justify="center")
+
+        indices = [f"[dim]{i}[/dim]" for i in range(1, len(regular_tiles)+1)]
+        if drawn_tile is not None:
+            indices.extend(["", "[yellow]0[/yellow]"])
+        table.add_row(*indices)
+
+        tiles = [self.tile_to_text(t) for t in regular_tiles]
+        if drawn_tile is not None:
+            tiles.extend(["", self.tile_to_text(drawn_tile)])
+        table.add_row(*tiles)
+
+        return table
 
 
     def tile_to_text(self, tile_id: int):
