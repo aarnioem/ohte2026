@@ -111,6 +111,30 @@ def is_tenpai_after_discard(tiles_136, *, melds=None):
     return len(get_tenpai_discards(tiles_136, melds=melds)) > 0
 
 
+def get_winning_tiles(tiles_136, *, melds=None):
+    """Returns the tiles that complete the hand in 34-index format.
+
+    Args:
+        tiles_136 (list[int]): list of tile ids in hand
+        melds (list[Meld], optional): List of melds in the hand. Defaults to None.
+
+    Returns:
+        list[int]: List of 34-format tile indices that complete the hand.
+    """
+    counts = _tiles_34_counts(tiles_136, melds)
+    shanten = Shanten()
+    waiting_tiles = []
+
+    for i in range(34):
+        if counts[i] < 4:
+            counts[i] += 1
+            if shanten.calculate_shanten(counts) == -1:
+                waiting_tiles.append(i)
+            counts[i] -= 1
+
+    return waiting_tiles
+
+
 def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi=False,
                   player_wind=None, round_wind=None, melds=None, dora_indicators=None,
                   uradora_indicators=None):
@@ -204,8 +228,8 @@ def can_tsumo(tiles_136, drawn_tile, *, riichi=False, player_wind=None, round_wi
     return (can_win, result)
 
 
-def can_ron(tiles_136, discarded_tile, *, riichi=False, player_wind=None, round_wind=None, melds=None,
-            dora_indicators=None, uradora_indicators=None):
+def can_ron(tiles_136, discarded_tile, *, riichi=False, player_wind=None, round_wind=None,
+            melds=None, dora_indicators=None, uradora_indicators=None):
     """Checks whether a hand can win by ron on a discarded tile.
 
     Args:

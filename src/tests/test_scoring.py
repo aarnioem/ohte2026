@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from core.scoring import can_tsumo, can_ron, calculate_win
+from core.scoring import can_tsumo, can_ron, calculate_win, get_waiting_tiles
 from core.melds import Meld
 
 
@@ -110,3 +110,15 @@ def test_calculate_ron_with_red_5_and_red5s_dora():
     assert result.error is None
     assert result.han == 3
     assert result.fu == 30
+
+
+def test_get_winning_tiles():
+    # 123m 234p 456p 78s WW
+    # Wait tiles are 6s and 9s
+    tiles = [0, 4, 8, 40, 44, 48, 49, 52, 56, 96, 100, 116, 117]
+
+    expected = [23, 26]
+
+    result = get_waiting_tiles(tiles)
+
+    assert expected == result
