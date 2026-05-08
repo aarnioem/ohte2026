@@ -5,10 +5,10 @@ class Player:
     Representation for a player of the game, should have information of tiles in hand,
     called tiles, discards, score etc.
     """
-    def __init__(self, human=False):
-        self.human = human
+    def __init__(self, controller):
+        self.controller = controller
         self.hand = Hand()
-        self.discards = [] # change this to a class later maybe
+        self.discards = []
         self.score = 25000
         self.riichi = False
         self.ippatsu = False
@@ -16,7 +16,7 @@ class Player:
         self.last_drawn_tile = None
 
     def is_human(self):
-        return self.human
+        return self.controller.is_human()
 
     def receive_tile(self, tile_id):
         self.hand.add_tile(tile_id)

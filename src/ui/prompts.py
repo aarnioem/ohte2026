@@ -1,5 +1,3 @@
-import random
-
 from core.player import Player
 from ui.renderer import CLIRenderer
 
@@ -8,32 +6,30 @@ class CLIPrompts:
     def __init__(self, renderer: CLIRenderer):
         self._renderer = renderer
 
-    def get_discard_choice(self, player: Player, dora_indicators=None):
-        if player.is_human():
-            self._renderer.separator("CHOOSE DISCARD")
-            regular_tiles, drawn_tile = self._print_discard_hand(player, dora_indicators)
+    def get_discard_choice(self, player: Player, game_state: dict):
+        dora_indicators = game_state.get("dora_indicators")
 
-            while True:
-                try:
-                    choice = int(input("Choose discard index: "))
-                    if drawn_tile is not None and choice == 0:
-                        print()
-                        return drawn_tile
+        self._renderer.separator("CHOOSE DISCARD")
+        regular_tiles, drawn_tile = self._print_discard_hand(player, dora_indicators)
 
-                    if 1 <= choice <= len(regular_tiles):
-                        print()
-                        return regular_tiles[choice - 1]
+        while True:
+            try:
+                choice = int(input("Choose discard index: "))
+                if drawn_tile is not None and choice == 0:
+                    print()
+                    return drawn_tile
 
-                    print("Index out of range.")
+                if 1 <= choice <= len(regular_tiles):
+                    print()
+                    return regular_tiles[choice - 1]
 
-                except ValueError:
-                    print("Please input a valid number")
-        else:
-            return random.choice(player.hand.tiles)
+                print("Index out of range.")
 
-    def get_tsumo_choice(self, player: Player, drawn_tile: int):
-        if not player.is_human():
-            return True
+            except ValueError:
+                print("Please input a valid number")
+
+    def get_tsumo_choice(self, player: Player, game_state: dict):
+        drawn_tile = int(game_state.get("last_drawn_tile", -1))
 
         while True:
             self._renderer.separator("TSUMO")
@@ -48,9 +44,8 @@ class CLIPrompts:
                 return False
             print("Please choose y or n.")
 
-    def get_ron_choice(self, player: Player, discarded_tile: int):
-        if not player.is_human():
-            return True
+    def get_ron_choice(self, player: Player, game_state: dict):
+        discarded_tile = int(game_state.get("last_discarded_tile", -1))
 
         while True:
             self._renderer.separator("RON")
@@ -65,9 +60,8 @@ class CLIPrompts:
                 return False
             print("Please choose y or n.")
 
-    def get_pon_choice(self, player: Player, discarded_tile: int):
-        if not player.is_human():
-            return False
+    def get_pon_choice(self, player: Player, game_state: dict):
+        discarded_tile = int(game_state.get("last_discarded_tile", -1))
 
         while True:
             self._renderer.separator("PON")
@@ -82,9 +76,8 @@ class CLIPrompts:
                 return False
             print("Please choose y or n.")
 
-    def get_kan_choice(self, player: Player, discarded_tile: int):
-        if not player.is_human():
-            return False
+    def get_kan_choice(self, player: Player, game_state: dict):
+        discarded_tile = int(game_state.get("last_discarded_tile", -1))
 
         while True:
             self._renderer.separator("KAN")
@@ -102,9 +95,6 @@ class CLIPrompts:
 # AI GENERATED CODE STARTS
 
     def get_riichi_choice(self, player: Player):
-        if not player.is_human():
-            return False
-
         while True:
             self._renderer.separator("RIICHI")
             self._print_hand(player)
@@ -117,9 +107,9 @@ class CLIPrompts:
                 return False
             print("Please choose y or n.")
 
-    def get_riichi_discard_choice(self, player: Player, valid_discards, dora_indicators=None):
-        if not player.is_human():
-            return None
+    def get_riichi_discard_choice(self, player: Player, game_state: dict):
+        valid_discards = game_state.get("valid_discards", [])
+        dora_indicators = game_state.get("dora_indicators")
 
         if not valid_discards:
             return None
@@ -162,9 +152,9 @@ class CLIPrompts:
 
             print("Please choose a valid riichi discard index or n.")
 
-    def get_chii_choice(self, player: Player, discarded_tile: int, options):
-        if not player.is_human():
-            return None
+    def get_chii_choice(self, player: Player, game_state: dict):
+        discarded_tile = int(game_state.get("last_discarded_tile", -1))
+        options = game_state.get("chii_options", [])
 
         if not options:
             return None

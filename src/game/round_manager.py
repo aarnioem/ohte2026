@@ -19,18 +19,18 @@ class RoundManager:
     PHASE_CALLS = "CALLS"
     PHASE_END = "END"
 
-    def __init__(self, players: list[Player], ui, wall: Wall, dealer_index=0):
+    def __init__(self, players: list[Player], wall: Wall, dealer_index=0, renderer=None):
         """Initializes the round manager.
 
         Args:
             players (list[Player]): List of players in seating order.
-            ui: UI object for requesting choices and rendering events.
             wall (Wall): The tile wall for the round.
+            renderer: Optional renderer object to display game events.
         """
         self.players = players
         self.dealer_index = dealer_index
-        self.ui = ui
         self.turn_pointer = 0
+        self.renderer = renderer
 
         self.last_discard = None
         self.last_player_index = None
@@ -49,10 +49,23 @@ class RoundManager:
 
         while True:
             event = self.next_phase()
-            self.ui.render(event, self._current_player())
+            if self.renderer:
+                self.renderer.render(event, self._current_player())
 
             if self.round_phase == self.PHASE_END:
                 return
+
+# AI generated
+    def get_game_state(self) -> dict:
+        return {
+            "turn": self.turn_pointer,
+            "dora_indicators": self.wall.get_dora_indicators(),
+            "wall_remaining": self.wall.live_tiles(),
+            "discards": {i: p.discards for i, p in enumerate(self.players)},
+            "melds": {i: p.hand.melds for i, p in enumerate(self.players)},
+            "riichi_declared": self.riichi_declared_by
+        }
+# AI generated ends
 
     def next_phase(self) -> dict:
         """Advances the round state machine by one phase and returns an event.
@@ -182,7 +195,6 @@ class RoundManager:
             "tile": rinshan_draw
         }
 
-
     def _draw_tile_or_end(self, player: Player):
         """Draws a tile or ends the game if the wall has run out of tiles.
 
@@ -204,7 +216,6 @@ class RoundManager:
         player.receive_tile(tile)
         return tile, None
 
-
     def _try_tsumo(self, player: Player, tile: int):
         """Checks if a tsumo is possible for the player and asks if they want to call tsumo.
 
@@ -225,7 +236,11 @@ class RoundManager:
             melds=player.hand.melds,
             dora_indicators=dora_indicators
         )
-        if tsumo_available and self.ui.get_tsumo_choice(player, tile):
+
+        game_state = self.get_game_state()
+        game_state["last_drawn_tile"] = tile
+
+        if tsumo_available and player.controller.get_tsumo_choice(player, game_state):
             self.round_phase = self.PHASE_END
 
             han = None
@@ -277,7 +292,6 @@ class RoundManager:
                 player.score += cost['main']
 # AI GENERATED ENDS
 
-
     def _award_riichi_sticks(self, player: Player):
         """Gives the available riichi sticks to a player and resets riichi stick counter
 
@@ -294,7 +308,8 @@ class RoundManager:
         dora_indicators = self.wall.get_dora_indicators()
         riichi_tile = self._try_declare_riichi(player, dora_indicators)
         if riichi_tile is None:
-            tile = self.ui.get_discard_choice(player, dora_indicators)
+            tile = player.controller.get_discard_choice(
+                player, self.get_game_state())
         else:
             tile = riichi_tile
 
@@ -327,12 +342,16 @@ class RoundManager:
         if not is_tenpai_after_discard(player.hand.tiles, melds=player.hand.melds):
             return None
 
-        valid_discards = get_tenpai_discards(player.hand.tiles, melds=player.hand.melds)
-        riichi_tile = self.ui.get_riichi_discard_choice(
-            player,
-            valid_discards,
-            dora_indicators,
-        )
+        valid_discards = get_tenpai_discards(
+            player.hand.tiles, melds=player.hand.melds)
+
+        game_state = self.get_game_state()
+        game_state["valid_discards"] = valid_discards
+        game_state["dora_indicators"] = dora_indicators
+
+        riichi_tile = player.controller.get_riichi_discard_choice(
+            player, game_state)
+
         if riichi_tile is None:
             return None
 
@@ -381,7 +400,7 @@ class RoundManager:
             if is_furiten(ron_player.hand.tiles, ron_player.discards, melds=ron_player.hand.melds):
                 continue
 
-            dora_indicators=self.wall.get_dora_indicators()
+            dora_indicators = self.wall.get_dora_indicators()
             ron_available, result = can_ron(
                 ron_player.hand.tiles,
                 self.last_discard,
@@ -398,7 +417,10 @@ class RoundManager:
                 han = result.han
                 fu = result.fu
 
-            if ron_available and self.ui.get_ron_choice(ron_player, self.last_discard):
+            game_state = self.get_game_state()
+            game_state["last_discarded_tile"] = self.last_discard
+
+            if ron_available and ron_player.controller.get_ron_choice(ron_player, game_state):
                 winning_tile = self.last_discard
                 self.round_phase = self.PHASE_END
 
@@ -447,12 +469,17 @@ class RoundManager:
     def _try_open_kan_call(self, player_index: int, player: Player):
         if not player.hand.can_open_kan(self.last_discard):
             return None
-        if not self.ui.get_kan_choice(player, self.last_discard):
+
+        game_state = self.get_game_state()
+        game_state["last_discarded_tile"] = self.last_discard
+
+        if not player.controller.get_kan_choice(player, game_state):
             return None
 
         called_tile = self.last_discard
         player.hand.apply_kan(self.last_discard, self.last_player_index)
-        self._set_call_state(player_index, self.PHASE_RINSHAN, reveal_dora=True)
+        self._set_call_state(
+            player_index, self.PHASE_RINSHAN, reveal_dora=True)
         return {
             "type": "kan",
             "player": player_index,
@@ -462,7 +489,11 @@ class RoundManager:
     def _try_pon_call(self, player_index: int, player: Player):
         if not player.hand.can_pon(self.last_discard):
             return None
-        if not self.ui.get_pon_choice(player, self.last_discard):
+
+        game_state = self.get_game_state()
+        game_state["last_discarded_tile"] = self.last_discard
+
+        if not player.controller.get_pon_choice(player, game_state):
             return None
 
         called_tile = self.last_discard
@@ -480,7 +511,6 @@ class RoundManager:
         self.pending_dora_reveal = reveal_dora
         self._clear_last_discard_state()
 
-
     def _resolve_chii_calls(self):
         if self.last_discard is None or self.last_player_index is None:
             return None
@@ -495,18 +525,20 @@ class RoundManager:
         if not chii_options:
             return None
 
-        selected_tiles = self.ui.get_chii_choice(
-            chii_player,
-            self.last_discard,
-            chii_options,
-        )
+        game_state = self.get_game_state()
+        game_state["chii_options"] = chii_options
+        game_state["last_discarded_tile"] = self.last_discard
+
+        selected_tiles = chii_player.controller.get_chii_choice(
+            chii_player, game_state)
         if selected_tiles is None:
             return None
 
         called_tile = self.last_discard
         from_player = self.last_player_index
 
-        chii_player.hand.apply_chii(called_tile, from_player, use_tiles=selected_tiles)
+        chii_player.hand.apply_chii(
+            called_tile, from_player, use_tiles=selected_tiles)
         self.turn_pointer = player_index
         self.round_phase = self.PHASE_DISCARD
         self._clear_last_discard_state()
@@ -519,6 +551,7 @@ class RoundManager:
 
 
 # AI GENERATED (instances of this elsewhere in the code were recommended by AI as well)
+
     def _clear_last_discard_state(self):
         """Clears the information about last discard and the player who last discarded.
         """
