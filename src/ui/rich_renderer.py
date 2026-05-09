@@ -6,6 +6,7 @@ from rich.table import Table
 from rich.live import Live
 from rich import box
 
+
 class RichRenderer:
     def __init__(self) -> None:
         self.console = Console()
@@ -15,7 +16,8 @@ class RichRenderer:
 
     def start_live(self):
         """Starts the live display context."""
-        self.live = Live(console=self.console, auto_refresh=False, transient=True, screen=True)
+        self.live = Live(console=self.console,
+                         auto_refresh=False, transient=True, screen=True)
         self.live.start()
 
     def stop_live(self):
@@ -27,7 +29,6 @@ class RichRenderer:
                 self.console.print(self._last_layout)
 
 # AI GENERATED CODE ENDS
-
 
     def create_layout(self) -> Layout:
         """Divides the terminal into a 4-player mahjong table structure."""
@@ -54,10 +55,11 @@ class RichRenderer:
         layout = self.create_layout()
 
         dora_indicators = game_state.get('dora_indicators', [])
-        dora_text = " ".join([self.tile_to_text(d) for d in dora_indicators]) if dora_indicators else "None"
+        dora_text = " ".join([self.tile_to_text(d)
+                             for d in dora_indicators]) if dora_indicators else "None"
 
         event_type = event.get("type", "Unknown").upper()
-        
+
         event_msg = ""
         tile_text = self.tile_to_text(event['tile']) if 'tile' in event else ""
         player_info = f"P{event.get('player', '?')}"
@@ -69,10 +71,10 @@ class RichRenderer:
                 event_msg = f"[bold red]ABORTIVE DRAW[/bold red] - {event.get('reason', 'Unknown reason')}"
             else:
                 event_msg = f"{player_info} draws."
-        
+
         elif event_type == "DISCARD":
             event_msg = f"{player_info} discards {tile_text}."
-        
+
         elif event_type in ("PON", "KAN", "CHII"):
             event_msg = f"[bold yellow]{player_info} calls {event_type} on {tile_text}![/bold yellow]"
 
@@ -83,8 +85,9 @@ class RichRenderer:
                 event_msg = f"{player_info} calls {action_colored} on {tile_text} from {deal_in}!"
             else:
                 event_msg = f"{player_info} calls {action_colored} on {tile_text}!"
-            
-            han, fu, cost = event.get("han"), event.get("fu"), event.get("cost")
+
+            han, fu, cost = event.get("han"), event.get(
+                "fu"), event.get("cost")
             if han is not None and fu is not None:
                 event_msg += f"\n[bold magenta]{han} Han, {fu} Fu[/bold magenta]"
             if cost is not None:
@@ -92,7 +95,7 @@ class RichRenderer:
                     event_msg += f"\n{deal_in} pays {cost}"
                 else:
                     event_msg += f"\nCost: {cost}"
-        
+
         elif event_type == "CALLS":
             event_msg = "Checking for calls..."
 
@@ -109,14 +112,15 @@ Dora: {dora_text}
 
 [cyan]{event_msg}[/cyan]"""
 
-
-        layout["center"].update(Panel(compass_info, title="Center", border_style="cyan", box=box.ASCII))
+        layout["center"].update(
+            Panel(compass_info, title="Center", border_style="cyan", box=box.ASCII))
 
         discards = game_state.get("discards", {})
         hands = game_state.get("player_hands", {0: [], 1: [], 2: [], 3: []})
         melds = game_state.get("melds", {0: [], 1: [], 2: [], 3: []})
 
-        layout["header"].update(Panel("", title="NotenMahjong", border_style="red", box=box.ASCII))
+        layout["header"].update(
+            Panel("", title="NotenMahjong", border_style="red", box=box.ASCII))
 
         layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nMelds:\n{self._format_melds(melds.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}",
                                    title="Player 2 (Top)",
@@ -131,10 +135,10 @@ Dora: {dora_text}
                                      box=box.ASCII))
 
         discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nMelds:\n{self._format_melds(melds.get(0, []))}\n\nHand:"
-        
+
         is_human_turn = game_state.get("turn") == 0
         drawn_tile = current_player.last_drawn_tile if current_player and is_human_turn else None
-        
+
         hand_table = self._format_hand(hands.get(0, []), drawn_tile)
 
         layout["bottom"].update(Panel(Group(discard_text, hand_table),
@@ -183,7 +187,7 @@ Dora: {dora_text}
                 prefix = f"[magenta]P{from_player}[/magenta] "
 
             formatted.append(prefix + "{" + " ".join(rendered) + "}")
-        
+
         return "  ".join(formatted)
 
     def _format_hand(self, hand_tiles: list, drawn_tile=None):
@@ -191,11 +195,13 @@ Dora: {dora_text}
             return ""
 
         if drawn_tile is not None and drawn_tile in hand_tiles:
-            regular_tiles = sorted([tile for tile in hand_tiles if tile != drawn_tile])
+            regular_tiles = sorted(
+                [tile for tile in hand_tiles if tile != drawn_tile])
         else:
             regular_tiles = sorted(hand_tiles)
 
-        table = Table(show_header=False, show_edge=False, padding=(0, 1), box=box.ASCII)
+        table = Table(show_header=False, show_edge=False,
+                      padding=(0, 1), box=box.ASCII)
 
         for _ in regular_tiles:
             table.add_column(justify="center")
@@ -218,7 +224,6 @@ Dora: {dora_text}
         table.add_row(*[str(t) for t in tiles])
 
         return table
-
 
     def tile_to_text(self, tile_id: int):
         tile34 = tile_id // 4
