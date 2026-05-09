@@ -17,7 +17,7 @@ class RichRenderer:
             Layout(name="header", size=2),
             Layout(name="top", size=9),
             Layout(name="middle"),
-            Layout(name="bottom", size=9)
+            Layout(name="bottom", size=12)
         )
 
         layout["middle"].split_row(
@@ -37,9 +37,26 @@ class RichRenderer:
         dora_text = " ".join([self.tile_to_text(d) for d in dora_indicators]) if dora_indicators else "None"
 
         event_type = event.get("type", "Unknown").upper()
-        event_msg = f"Last Action: {event_type} by P{event.get('player', '?')}"
-        if "tile" in event:
-            event_msg += f"\nTile: {self.tile_to_text(event['tile'])}"
+        
+        if event_type == "DRAW" and "tile" not in event:
+            event_msg = "[bold red]EXHAUSTIVE DRAW[/bold red] - No live tiles left!"
+        else:
+            event_msg = f"Last Action: {event_type} by P{event.get('player', '?')}"
+            if "tile" in event:
+                event_msg += f"\nTile: {self.tile_to_text(event['tile'])}"
+
+            if event_type in ("TSUMO", "RON"):
+                han = event.get("han")
+                fu = event.get("fu")
+                if han is not None and fu is not None:
+                    event_msg += f"\n[bold magenta]{han} Han, {fu} Fu[/bold magenta]"
+                
+                cost = event.get("cost")
+                if cost is not None:
+                    if event_type == "RON":
+                        event_msg += f"\nP{event.get('deal_in_player', '?')} pays {cost}"
+                    else:
+                        event_msg += f"\nCost: {cost}"
 
         compass_info = f"""[bold yellow]Round Information[/bold yellow]
 Wall: {game_state.get('wall_remaining', 70)} tiles left
@@ -53,22 +70,23 @@ Dora: {dora_text}
 
         discards = game_state.get("discards", {})
         hands = game_state.get("player_hands", {0: [], 1: [], 2: [], 3: []})
+        melds = game_state.get("melds", {0: [], 1: [], 2: [], 3: []})
 
         layout["header"].update(Panel("", title="NotenMahjong", border_style="red", box=box.ASCII))
 
-        layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}",
+        layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nMelds:\n{self._format_melds(melds.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}",
                                    title="Player 2 (Top)",
                                    box=box.ASCII))
 
-        layout["left"].update(Panel(f"Discards:\n{self._format_discards(discards.get(3, []))}\n\nUnknown Tiles: {len(hands.get(3, []))}",
+        layout["left"].update(Panel(f"Discards:\n{self._format_discards(discards.get(3, []))}\n\nMelds:\n{self._format_melds(melds.get(3, []))}\n\nUnknown Tiles: {len(hands.get(3, []))}",
                                     title="Player 3 (Left)",
                                     box=box.ASCII))
 
-        layout["right"].update(Panel(f"Discards:\n{self._format_discards(discards.get(1, []))}\n\nUnknown Tiles: {len(hands.get(1, []))}",
+        layout["right"].update(Panel(f"Discards:\n{self._format_discards(discards.get(1, []))}\n\nMelds:\n{self._format_melds(melds.get(1, []))}\n\nUnknown Tiles: {len(hands.get(1, []))}",
                                      title="Player 1 (Right)",
                                      box=box.ASCII))
 
-        discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nHand:"
+        discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nMelds:\n{self._format_melds(melds.get(0, []))}\n\nHand:"
         drawn_tile = current_player.last_drawn_tile if current_player else None
         hand_table = self._format_hand(hands.get(0, []), drawn_tile)
 
@@ -88,6 +106,32 @@ Dora: {dora_text}
                 formatted += "\n"
 
         return formatted.strip()
+
+    def _format_melds(self, melds: list) -> str:
+        if not melds:
+            return "None"
+        formatted = []
+        for meld in melds:
+            tiles = list(meld.tiles)
+            called_tile = getattr(meld, "called_tile", None)
+            from_player = getattr(meld, "from_player", None)
+            called_used = False
+            rendered = []
+
+            for tile in tiles:
+                text = self.tile_to_text(tile)
+                if called_tile is not None and not called_used and tile == called_tile:
+                    text = f"[{text}]"
+                    called_used = True
+                rendered.append(text)
+
+            prefix = ""
+            if from_player is not None:
+                prefix = f"[magenta]P{from_player}[/magenta] "
+
+            formatted.append(prefix + "{" + " ".join(rendered) + "}")
+        
+        return "  ".join(formatted)
 
     def _format_hand(self, hand_tiles: list, drawn_tile=None):
         if not hand_tiles:
