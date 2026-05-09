@@ -7,8 +7,8 @@
 Sovellus on jaettu kolmeen osaan:
 
 - `src/core`: Pelille tarpeelliset oliot ja funktiot (hand/kädet, pelaajat, wall/muurirakenne, melds/setit, pisteytys)
-- `src/game`: Pelin kulun toteuttavat luokat (Tällä hetkellä pelkkä `RoundManager`. Myöhemmin toivottavasti myös useamman kierroksen toteuttava `MatchManager`)
-- `src/ui`: käyttöliittymä (nyt komentorivipohjainen `CLI`)
+- `src/game`: Pelin kulun toteuttava luokka RoundManager. RoundManager luo tapahtumia, jotka se antaa UI luokalle.
+- `src/ui`: UI hakemisto sisältää RichRenderer luokan, RichPrompts luoka sekä controller luokat. Controller luokkien kautta saadaan pelaajien tekemät päätökset. Ihmispelaajalta halutut päätökset delegoidaan RichPrompts luokalle, joka käyttää RichRenderer luokkaa informaation näyttämiseen pelaajalle.
 - `src/main.py` alustaa pelin (pelaajat + UI + muuri) ja käynnistää kierroksen
 
 ### Luokkakaavio
@@ -25,11 +25,13 @@ classDiagram
 	}
 
     Player "1" --> "1" Hand
+    Player "*" --> "1" PlayerController
 	class Player {
-		human
+        controller
         discards
         score
         riichi
+        ippatsu
         hand
         receive_tile(tile_id)
         discard(tile)
@@ -43,24 +45,17 @@ classDiagram
         live_tiles()
 	}
 
+    RoundManager ..> scoring
     RoundManager "*" --> "1" Wall
     RoundManager "*" --> "4" Player
-    RoundManager "*" --> "1" CLI
-    RoundManager ..> scoring
+    RoundManager "*" --> "1" RichRenderer
 	class RoundManager {
 		players
         wall
-        ui
+        renderer
         turn_pointer
         round_phase
         play_round()
-	}
-
-	class CLI {
-		render(event, player)
-        get_tsumo_choice(player, drawn_tile)
-        get_ron_choice(player, discarded_tile)
-        get_discard_choice(player)
 	}
 
     class scoring {
@@ -70,11 +65,53 @@ classDiagram
         calculate_win(tiles_136, win_tile, is_tsumo, riichi)
     }
 
+    class PlayerController {
+        is_human()
+        get_discard_choice()
+        get_tsumo_choice()
+        get_ron_choice()
+        get_pon_choice()
+        get_kan_choice()
+        get_riichi_choice()
+        get_riichi_discard_choice()
+        get_chii_choice()
+    }
+
+    PlayerController <|-- AIController
+
+    class AIController {
+    }
+
+    PlayerController <|-- RichController
+
+    RichController "*" --> "1" RichPrompts
+    class RichController {
+    }
+
+	class RichRenderer {
+        render()
+        start_live()
+        stop_live()
+	}
+
+    RichPrompts "*" --> "1" RichRenderer
+    class RichPrompts {
+        get_discard_choice()
+        get_tsumo_choice()
+        get_ron_choice()
+        get_pon_choice()
+        get_kan_choice()
+        get_riichi_choice()
+        get_riichi_discard_choice()
+        get_chii_choice()
+	}
+
+
 ```
 
 ## Käyttöliittymä
 
-Sovelluksella on yksinkertainen komentorivikäyttöliittymä. Sovellus tulostaa eventtien perusteella tietoa pelaajalle, ja kysyy pelaajalta tarvittavat päätökset. Viskattava tiili valitaan kädestä numeroilla 1-13, tai juuri nostettu tiili numerolla 0.
+Sovelluksella on Rich pohjainen komentorivikäyttöliittymä. Peli päivittää pelinäkymää RoundManagerilta saatujen eventtien ja pelitilan mukaan ja kysyy pelaajalta tarvittavat päätökset. Viskattava tiili valitaan kädestä numeroilla 1-13, tai juuri nostettu tiili numerolla 0.
 
 ## Sovelluslogiikka
 
@@ -86,7 +123,7 @@ Pelin päävastuu on `RoundManager`-luokalla, joka on toteutettu tilakoneena:
 4. **Vuoron vaihtuminen**: jos vaadintaa ei tehdä, vuoro siirtyy seuraavalle pelaajalle. Vaadinta myös vaihtaa aktiivisen pelaajan.
 5. **Kierroksen loppu**: kierros päättyy voittoon (tsumo/ron) tai tiilien loppumiseen muurista.
 
-`ui` renderöi eventit ja kysyy ihmispelaajan valinnat, kun taas `core` toteuttaa sääntöihin liittyvät operaatiot (esim. käden muokkaus, vaadintojen tarkistus, voittokäden validointi, pisteytyksen laskenta).
+`ui` renderöi eventit ja kysyy pelaajien valinnat, kun taas `core` toteuttaa sääntöihin liittyvät operaatiot (esim. käden muokkaus, vaadintojen tarkistus, voittokäden validointi, pisteytyksen laskenta).
 
 ### Pelilogiikan sekvenssikaaviot
 
@@ -98,8 +135,10 @@ sequenceDiagram
     participant RoundManager
     participant Wall
     participant Player
-    participant UI
+    participant Controller
+    participant RichPrompts
     actor User
+    participant RichRenderer
 
     Main->>RoundManager: play_round()
     RoundManager->>RoundManager: _start_round()
@@ -112,7 +151,7 @@ sequenceDiagram
 
 
     RoundManager->>RoundManager: next_phase()
-    RoundManager->>UI: render(event, self._current_player())
+    RoundManager->>RichRenderer: render(event, self._current_player())
 
     RoundManager->>Wall: draw_tile()
     Wall-->>RoundManager: tile
@@ -121,9 +160,16 @@ sequenceDiagram
     Note over RoundManager: no tsumo
 
 
-    RoundManager->>UI: get_discard_choice(player)
-    User->>UI: choice
-    UI-->>RoundManager: tile
+    RoundManager->>Player: get_discard_choice()
+    Player->>Controller: get_discard_choice()
+    Controller->>RichPrompts: get_discard_choice()
+    RichPrompts->>RichRenderer:
+    User->>RichPrompts: choice
+    RichPrompts-->Controller: discard_index
+    Controller-->>Player: discard_index
+    Player-->>RoundManager: discard_index
+
+    RichRenderer-->>RoundManager: 
     RoundManager->>Player: discard(tile)
     Player-->>RoundManager: tile discarded
 
