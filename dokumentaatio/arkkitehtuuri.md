@@ -110,7 +110,7 @@ classDiagram
 ```
 
 ## Käyttöliittymä
-
+![Kuva pelinäkymästä](kuvat/table.png)
 Sovelluksella on Rich pohjainen komentorivikäyttöliittymä. Peli päivittää pelinäkymää RoundManagerilta saatujen eventtien ja pelitilan mukaan ja kysyy pelaajalta tarvittavat päätökset. Viskattava tiili valitaan kädestä numeroilla 1-13, tai juuri nostettu tiili numerolla 0.
 
 ## Sovelluslogiikka
@@ -135,7 +135,7 @@ sequenceDiagram
     participant RoundManager
     participant Wall
     participant Player
-    participant Controller
+    participant PlayerController
     participant RichPrompts
     actor User
     participant RichRenderer
@@ -161,12 +161,12 @@ sequenceDiagram
 
 
     RoundManager->>Player: get_discard_choice()
-    Player->>Controller: get_discard_choice()
-    Controller->>RichPrompts: get_discard_choice()
+    Player->>PlayerController: get_discard_choice()
+    PlayerController->>RichPrompts: get_discard_choice()
     RichPrompts->>RichRenderer:
     User->>RichPrompts: choice
-    RichPrompts-->Controller: discard_index
-    Controller-->>Player: discard_index
+    RichPrompts-->PlayerController: discard_index
+    PlayerController-->>Player: discard_index
     Player-->>RoundManager: discard_index
 
     RichRenderer-->>RoundManager: 
@@ -178,3 +178,9 @@ sequenceDiagram
     RoundManager->>RoundManager: advance_turn()
 
 ```
+
+Kaavio kuvaa pelin alkua. Aluksi pelaajille jaetaan tiilet, jonka jälkeen peli kutsuu next_phase() metodia joka aloittaa varsinaisen pelin. RoundManager ottaa muurista tiilen ja laittaa sen vuorossa olevan pelaajan käteen. Jos (kun) pelaaja ei voita, RoundManager kutsuu Player luokalta päätöstä get_discard_choice() metodilla.
+
+Player luokalla on riippuvuus PlayerControlleriin, jolta saadaan varsinaiset päätökset. Koska kyseessä on ihmispelaaja ja RichController eikä AIController, RichController kysyy päätöstä RichPrompts luokan kautta. Pelaajan tekemä päätös palautuu RoundManagerille, joka poistaa oikean tiilen pelaajalta.
+
+Seuraavaksi RoundManager tarkistaa haluaako muut pelaajat vaatia viskauttua tiiltä, jonka jälkeen siirrytään seuraavan pelaajan vuoroon, joka etenee samaan tapaan.
