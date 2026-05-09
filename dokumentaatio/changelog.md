@@ -30,3 +30,5 @@
 - added riichi declaration
 - added proper seating order for winds
 - round end score payouts
+- added furiten
+- Made a completely new UI using Rich
