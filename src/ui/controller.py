@@ -128,7 +128,7 @@ class RichController(PlayerController):
         return self.prompts.get_kan_choice(player_data, game_state)
 
     def get_riichi_choice(self, player_data, game_state):
-        return self.prompts.get_riichi_choice(player_data)
+        return self.prompts.get_riichi_choice(player_data, game_state)
 
     def get_riichi_discard_choice(self, player_data, game_state):
         return self.prompts.get_riichi_discard_choice(player_data, game_state)

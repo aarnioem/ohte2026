@@ -3,7 +3,6 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
-from core.player import Player
 
 class RichRenderer:
     def __init__(self) -> None:
@@ -29,18 +28,27 @@ class RichRenderer:
 
         return layout
 
-    def render(self, event: dict, game_state: dict, current_player: Player):
+# AI GENERATED CODE STARTS
+    def render(self, event: dict, game_state: dict, current_player=None):
         """Fills the layout with data and prints it."""
         layout = self.create_layout()
+
+        dora_indicators = game_state.get('dora_indicators', [])
+        dora_text = " ".join([self.tile_to_text(d) for d in dora_indicators]) if dora_indicators else "None"
 
         event_type = event.get("type", "Unknown").upper()
         event_msg = f"Last Action: {event_type} by P{event.get('player', '?')}"
         if "tile" in event:
-            event_msg += f"\nTile ID: {event['tile']}"
+            event_msg += f"\nTile: {self.tile_to_text(event['tile'])}"
 
-# AI GENERATED CODE STARTS
-        compass_info = f"[bold yellow]Round Information[/bold yellow]\nWall: {game_state.get('wall_remaining', 70)} tiles left\nDora: 🀫\n\n[cyan]{event_msg}[/cyan]"
-# AI GENERATED CODE ends
+        compass_info = f"""[bold yellow]Round Information[/bold yellow]
+Wall: {game_state.get('wall_remaining', 70)} tiles left
+
+Dora: {dora_text}
+
+[cyan]{event_msg}[/cyan]"""
+
+
         layout["center"].update(Panel(compass_info, title="Center", border_style="cyan", box=box.ASCII))
 
         discards = game_state.get("discards", {})
@@ -61,7 +69,8 @@ class RichRenderer:
                                      box=box.ASCII))
 
         discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nHand:"
-        hand_table = self._format_hand(hands.get(0, []), current_player.last_drawn_tile)
+        drawn_tile = current_player.last_drawn_tile if current_player else None
+        hand_table = self._format_hand(hands.get(0, []), drawn_tile)
 
         layout["bottom"].update(Panel(Group(discard_text, hand_table),
                                       title="You (Bottom) - P0",
@@ -71,7 +80,6 @@ class RichRenderer:
         self.console.clear()
         self.console.print(layout)
 
-# AI GENERATED CODE STARTS
     def _format_discards(self, discards: list):
         formatted = ""
         for i, tile_id in enumerate(discards):
@@ -86,11 +94,11 @@ class RichRenderer:
             return ""
 
         if drawn_tile is not None and drawn_tile in hand_tiles:
-            regular_tiles = [tile for tile in hand_tiles if tile != drawn_tile]
+            regular_tiles = sorted([tile for tile in hand_tiles if tile != drawn_tile])
         else:
-            regular_tiles = hand_tiles
+            regular_tiles = sorted(hand_tiles)
 
-        table = Table(show_header=False, show_edge=False, padding=(0, 1))
+        table = Table(show_header=False, show_edge=False, padding=(0, 1), box=box.ASCII)
 
         for _ in regular_tiles:
             table.add_column(justify="center")
@@ -102,12 +110,15 @@ class RichRenderer:
         indices = [f"[dim]{i}[/dim]" for i in range(1, len(regular_tiles)+1)]
         if drawn_tile is not None:
             indices.extend(["", "[yellow]0[/yellow]"])
-        table.add_row(*indices)
+
+        # must convert numbers to strings, Table columns will fail if lengths don't match exactly
+        table.add_row(*[str(i) for i in indices])
 
         tiles = [self.tile_to_text(t) for t in regular_tiles]
         if drawn_tile is not None:
             tiles.extend(["", self.tile_to_text(drawn_tile)])
-        table.add_row(*tiles)
+
+        table.add_row(*[str(t) for t in tiles])
 
         return table
 
@@ -147,7 +158,8 @@ if __name__ == "__main__":
     dummy_state = {
         "wall_remaining": 69, 
         "discards": {0: [1,2,3], 1: [4,5], 2: [], 3: [7]},
-        "player_hands": {0: [16, 20, 24, 0, 1, 2, 9, 10, 11, 50, 66, 116, 89]}
+        "player_hands": {0: [16, 20, 24, 0, 1, 2, 9, 10, 11, 50, 66, 116, 89]},
+        "dora_indicators": [25]
     }
     dummy_event = {"type": "discard", "player": 1, "tile": 34}
     renderer.render(dummy_event, dummy_state, current_player=None)
