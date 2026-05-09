@@ -111,8 +111,52 @@ class Hand:
         discard34 = self._tile34(discard_tile)
         return self._tile34_counts().get(discard34, 0) >= 3
 
+    def can_shouminkan(self, drawn_tile):
+        """Checks if an pon meld can be upgraded to a Kan meld
+
+        Args:
+            drawn_tile (int): tile_id
+
+        Returns:
+            bool: True if there is a pon meld of the same tile
+        """
+        drawn34 = self._tile34(drawn_tile)
+        for meld in self.melds:
+            if meld.meld_type == "pon" and self._tile34(meld.called_tile) == drawn34:
+                return True
+        return False
+
 
 # AI GENERATED CODE STARTS
+
+    def apply_shouminkan(self, drawn_tile):
+        """Upgrades an existing pon meld to a kan using a drawn tile (shouminkan).
+
+        Args:
+            drawn_tile (int): tile_id
+
+        Returns:
+            Meld: the upgraded kan meld
+
+        Raises:
+            ValueError: if shouminkan is not available
+        """
+        if not self.can_shouminkan(drawn_tile):
+            raise ValueError("Shouminkan is not available for this drawn tile")
+
+        resulting_meld = None
+
+        drawn34 = self._tile34(drawn_tile)
+        for meld in self.melds:
+            if meld.meld_type == "pon" and self._tile34(meld.called_tile) == drawn34:
+                if drawn_tile in self.tiles:
+                    self.tiles.remove(drawn_tile)
+                meld.meld_type = "kan"
+                meld.tiles = sorted(meld.tiles + [drawn_tile])
+                self.is_closed = False
+                resulting_meld = meld
+        return resulting_meld
+
 
     def get_chii_options(self, discard_tile):
         """Returns options for different chii shapes"""

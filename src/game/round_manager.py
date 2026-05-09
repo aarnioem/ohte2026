@@ -159,6 +159,10 @@ class RoundManager:
         if tsumo_event is not None:
             return tsumo_event
 
+        shouminkan_event = self._offer_shouminkan(player, tile)
+        if shouminkan_event is not None:
+            return shouminkan_event
+
         if player.ippatsu:
             player.ippatsu = False
 
@@ -168,6 +172,33 @@ class RoundManager:
             "player": self.turn_pointer,
             "tile": tile
         }
+
+    def _offer_shouminkan(self, player: Player, tile: int):
+        """Check and offer shouminkan to the current player after a draw.
+
+        Returns an event dict if the player performs shouminkan, otherwise None.
+        """
+        if not player.hand.can_shouminkan(tile):
+            return None
+
+# AI GENERATED
+        game_state = self.get_game_state()
+        game_state["last_drawn_tile"] = tile
+        game_state["call_type"] = "shouminkan"
+
+        if not player.controller.get_kan_choice(player, game_state):
+            return None
+
+        player.hand.apply_shouminkan(tile)
+        self.pending_dora_reveal = True
+        self.round_phase = self.PHASE_RINSHAN
+        return {
+            "type": "kan",
+            "player": self.turn_pointer,
+            "tile": tile,
+            "call_type": "shouminkan",
+        }
+# AI GENERATED ENDS
 
     def _rinshan_phase(self):
         """Handles a kan replacement draw.

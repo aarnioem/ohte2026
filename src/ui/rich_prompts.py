@@ -65,11 +65,18 @@ class RichPrompts:
         )
 
     def get_kan_choice(self, player_data, game_state):
-        discarded_tile = int(game_state.get("last_discarded_tile", -1))
-        tile_text = self._renderer.tile_to_text(discarded_tile)
+        # For shouminkan (draw-based kan), use last_drawn_tile; for daiminkan, use last_discarded_tile
+        call_type = game_state.get("call_type", "daiminkan")
+        if call_type == "shouminkan":
+            tile_id = int(game_state.get("last_drawn_tile", -1))
+            prompt_text = "Call Kan (shouminkan) on"
+        else:
+            tile_id = int(game_state.get("last_discarded_tile", -1))
+            prompt_text = "Call Kan on"
 
+        tile_text = self._renderer.tile_to_text(tile_id)
         return Confirm.ask(
-            f"[bold cyan]KAN[/bold cyan] - Call Kan on {tile_text}?",
+            f"[bold cyan]KAN[/bold cyan] - {prompt_text} {tile_text}?",
             console=self._renderer.console
         )
 
