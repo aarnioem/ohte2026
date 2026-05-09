@@ -1,8 +1,7 @@
 from game.round_manager import RoundManager
 from core.player import Player
 from core.wall import Wall
-from ui.controller import CLIController, AIController, RichController
-from ui.renderer import CLIRenderer
+from ui.controller import AIController, RichController
 from ui.rich_renderer import RichRenderer
 
 def main():

@@ -11,6 +11,8 @@ class RichRenderer:
         self.console = Console()
         self.live = None
 
+# AI GENERATED CODE STARTS
+
     def start_live(self):
         """Starts the live display context."""
         self.live = Live(console=self.console, auto_refresh=False, transient=True, screen=True)
@@ -23,6 +25,9 @@ class RichRenderer:
             self.live = None
             if hasattr(self, '_last_layout'):
                 self.console.print(self._last_layout)
+
+# AI GENERATED CODE ENDS
+
 
     def create_layout(self) -> Layout:
         """Divides the terminal into a 4-player mahjong table structure."""
@@ -244,14 +249,3 @@ Dora: {dora_text}
         return f"[yellow]{honors[tile34 - 27]}[/yellow]"
 
 # AI GENERATED CODE ENDS
-
-if __name__ == "__main__":
-    renderer = RichRenderer()
-    dummy_state = {
-        "wall_remaining": 69, 
-        "discards": {0: [1,2,3], 1: [4,5], 2: [], 3: [7]},
-        "player_hands": {0: [16, 20, 24, 0, 1, 2, 9, 10, 11, 50, 66, 116, 89]},
-        "dora_indicators": [25]
-    }
-    dummy_event = {"type": "discard", "player": 1, "tile": 34}
-    renderer.render(dummy_event, dummy_state, current_player=None)
