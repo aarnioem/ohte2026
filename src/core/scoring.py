@@ -154,26 +154,25 @@ def is_furiten(tiles_136, discards_136, melds=None):
     return False
 
 
-def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi=False,
-                  player_wind=None, round_wind=None, melds=None, dora_indicators=None,
-                  uradora_indicators=None):
+def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, **kwargs):
     """Calculates the hand value using the mahjong library calculator
 
     Args:
         tiles_136 (list[int]): list of tile ids in hand
         win_tile (int): tile the win was called on
         is_tsumo (bool): is the winning tile drawn (True) or discarded (False)
-        riichi (bool, optional): Is the player in riichi. Defaults to False.
-        player_wind (int, optional): Wind of the player (27=East, 28=South, 29=West, 30=North).
-        round_wind (int, optional): Wind of the round.
-        melds (list[Meld], optional): List of meld objects in the hand. Defaults to None.
-        dora_indicators (list[int], optional): Visible dora indicators. Defaults to None.
-        uradora_indicators (list[int], optional): Uradora indicators if the player is in riichi.
-        Defaults to None.
+        riichi (bool): Is the player in riichi. Defaults to False.
+        player_wind (int): Wind of the player (27=East, 28=South, 29=West, 30=North).
+        round_wind (int): Wind of the round.
+        melds (list[Meld]): List of meld objects in the hand. Defaults to None.
+        dora_indicators (list[int]): Visible dora indicators. Defaults to None.
+        uradora_indicators (list[int]): Uradora indicators if the player is in riichi.
+            Defaults to None.
 
     Returns:
         HandResponse: Mahjong library result object containing score details.
     """
+    melds = kwargs.get('melds', None)
     all_tiles = list(tiles_136) + _meld_tiles_136(melds)
     tiles = sorted(all_tiles)
     scoring_melds = _to_mahjong_melds(melds)
@@ -181,9 +180,9 @@ def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi
     calculator = HandCalculator()
     config = HandConfig(
         is_tsumo=is_tsumo,
-        is_riichi=riichi,
-        player_wind=player_wind,
-        round_wind=round_wind,
+        is_riichi=kwargs.get('riichi', False),
+        player_wind=kwargs.get('player_wind', None),
+        round_wind=kwargs.get('round_wind', None),
         options=OptionalRules(has_open_tanyao=True, has_aka_dora=True),
     )
 
@@ -191,8 +190,8 @@ def calculate_win(tiles_136: list[int], win_tile: int, is_tsumo: bool, *, riichi
         tiles=tiles,
         win_tile=win_tile,
         melds=scoring_melds,
-        dora_indicators=dora_indicators,
-        ura_dora_indicators=uradora_indicators,
+        dora_indicators=kwargs.get('dora_indicators', None),
+        ura_dora_indicators=kwargs.get('uradora_indicators', None),
         config=config,
     )
 
@@ -209,17 +208,16 @@ def _is_valid_win(result):
     return result.error is None and result.han is not None and result.han > 0
 
 
-def can_tsumo(tiles_136, drawn_tile, *, riichi=False, player_wind=None, round_wind=None, melds=None,
-              dora_indicators=None, uradora_indicators=None):
+def can_tsumo(tiles_136, drawn_tile, **kwargs):
     """Checks whether a hand can win by tsumo on a drawn tile.
 
     Args:
         tiles_136 (list[int]): list of tile ids in hand
         drawn_tile (int): tile id of drawn tile
-        riichi (bool, optional): Is the player in riichi. Defaults to False.
-        melds (list[Meld], optional): List of melds the player has called. Defaults to None.
-        dora_indicators (list[int], optional): List of open dora indicators. Defaults to None.
-        uradora_indicators (list[int], optional): List of uradora indicators if the player
+        riichi (bool): Is the player in riichi. Defaults to False.
+        melds (list[Meld]): List of melds the player has called. Defaults to None.
+        dora_indicators (list[int]): List of open dora indicators. Defaults to None.
+        uradora_indicators (list[int]): List of uradora indicators if the player
             is in riichi. Defaults to None.
 
     Returns:
@@ -228,6 +226,7 @@ def can_tsumo(tiles_136, drawn_tile, *, riichi=False, player_wind=None, round_wi
             Returns ``(False, None)`` when hand size is invalid.
     """
 
+    melds = kwargs.get('melds', None)
     if not melds and len(tiles_136) != 14:
         return (False, None)
 
@@ -235,29 +234,23 @@ def can_tsumo(tiles_136, drawn_tile, *, riichi=False, player_wind=None, round_wi
         tiles_136,
         drawn_tile,
         is_tsumo=True,
-        riichi=riichi,
-        player_wind=player_wind,
-        round_wind=round_wind,
-        melds=melds,
-        dora_indicators=dora_indicators,
-        uradora_indicators=uradora_indicators
+        **kwargs
     )
 
     can_win = _is_valid_win(result)
     return (can_win, result)
 
 
-def can_ron(tiles_136, discarded_tile, *, riichi=False, player_wind=None, round_wind=None,
-            melds=None, dora_indicators=None, uradora_indicators=None):
+def can_ron(tiles_136, discarded_tile, **kwargs):
     """Checks whether a hand can win by ron on a discarded tile.
 
     Args:
         tiles_136 (list[int]): list of tile ids in hand
         discarded_tile (int): tile id of discarded tile
-        riichi (bool, optional): Is the player in riichi. Defaults to False.
-        melds (list[Meld], optional): List of melds the player has called. Defaults to None.
-        dora_indicators (list[int], optional): List of open dora indicators. Defaults to None.
-        uradora_indicators (list[int], optional): List of uradora indicators if the player
+        riichi (bool): Is the player in riichi. Defaults to False.
+        melds (list[Meld]): List of melds the player has called. Defaults to None.
+        dora_indicators (list[int]): List of open dora indicators. Defaults to None.
+        uradora_indicators (list[int]): List of uradora indicators if the player
             is in riichi. Defaults to None.
 
     Returns:
@@ -265,6 +258,8 @@ def can_ron(tiles_136, discarded_tile, *, riichi=False, player_wind=None, round_
             is possible and the second part has the mahjong library result object.
             Returns ``(False, None)`` when hand size is invalid.
     """
+
+    melds = kwargs.get('melds', None)
     if not melds and len(tiles_136) != 13:
         return (False, None)
 
@@ -272,12 +267,7 @@ def can_ron(tiles_136, discarded_tile, *, riichi=False, player_wind=None, round_
         tiles_136 + [discarded_tile],
         discarded_tile,
         is_tsumo=False,
-        riichi=riichi,
-        player_wind=player_wind,
-        round_wind=round_wind,
-        melds=melds,
-        dora_indicators=dora_indicators,
-        uradora_indicators=uradora_indicators
+        **kwargs
     )
 
     can_win = _is_valid_win(result)

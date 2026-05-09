@@ -399,59 +399,66 @@ class RoundManager:
     def _resolve_ron_calls(self):
         for offset in range(1, 4):
             player_index = (offset + self.turn_pointer) % 4
-            ron_player = self.players[player_index]
+            ron_event = self._try_ron_for_player(player_index)
+            if ron_event is not None:
+                return ron_event
+        return None
 
-            if is_furiten(ron_player.hand.tiles, ron_player.discards, melds=ron_player.hand.melds):
-                continue
+    def _try_ron_for_player(self, player_index: int):
+        ron_player = self.players[player_index]
 
-            dora_indicators = self.wall.get_dora_indicators()
-            ron_available, result = can_ron(
-                ron_player.hand.tiles,
-                self.last_discard,
-                riichi=ron_player.riichi,
-                player_wind=self._player_wind(player_index),
-                melds=ron_player.hand.melds,
-                dora_indicators=dora_indicators
-            )
+        if is_furiten(ron_player.hand.tiles, ron_player.discards, melds=ron_player.hand.melds):
+            return None
 
-            han = None
-            fu = None
+        dora_indicators = self.wall.get_dora_indicators()
+        ron_available, result = can_ron(
+            ron_player.hand.tiles,
+            self.last_discard,
+            riichi=ron_player.riichi,
+            player_wind=self._player_wind(player_index),
+            melds=ron_player.hand.melds,
+            dora_indicators=dora_indicators
+        )
 
-            if result is not None:
-                han = result.han
-                fu = result.fu
+        if not ron_available:
+            return None
 
-            game_state = self.get_game_state()
-            game_state["last_discarded_tile"] = self.last_discard
+        game_state = self.get_game_state()
+        game_state["last_discarded_tile"] = self.last_discard
 
-            if ron_available and ron_player.controller.get_ron_choice(ron_player, game_state):
-                winning_tile = self.last_discard
-                self.round_phase = self.PHASE_END
-
-                # AI generated code
-                cost = 0
-                if result is not None and result.cost and self.last_player_index is not None:
-                    cost = result.cost['main']
-                    self.players[self.last_player_index].score -= cost
-                    ron_player.score += cost
-                # AI generated code ends
-
-                self._award_riichi_sticks(ron_player)
-
-                deal_in_player = self.last_player_index
-
-                self._clear_last_discard_state()
-                return {
-                    "type": "ron",
-                    "player": player_index,
-                    "deal_in_player": deal_in_player,
-                    "tile": winning_tile,
-                    "han": han,
-                    "fu": fu,
-                    "cost": cost,
-                }
+        if ron_player.controller.get_ron_choice(ron_player, game_state):
+            return self._process_ron_win(ron_player, player_index, result)
 
         return None
+
+    def _process_ron_win(self, ron_player: Player, player_index: int, result):
+        winning_tile = self.last_discard
+        self.round_phase = self.PHASE_END
+
+        han = result.han if result else None
+        fu = result.fu if result else None
+
+        # AI generated code
+        cost = 0
+        if result is not None and result.cost and self.last_player_index is not None:
+            cost = result.cost['main']
+            self.players[self.last_player_index].score -= cost
+            ron_player.score += cost
+        # AI generated code ends
+
+        self._award_riichi_sticks(ron_player)
+        deal_in_player = self.last_player_index
+        self._clear_last_discard_state()
+
+        return {
+            "type": "ron",
+            "player": player_index,
+            "deal_in_player": deal_in_player,
+            "tile": winning_tile,
+            "han": han,
+            "fu": fu,
+            "cost": cost,
+        }
 
     def _resolve_pon_kan_calls(self):
         for offset in range(1, 4):
