@@ -38,25 +38,49 @@ class RichRenderer:
 
         event_type = event.get("type", "Unknown").upper()
         
-        if event_type == "DRAW" and "tile" not in event:
-            event_msg = "[bold red]EXHAUSTIVE DRAW[/bold red] - No live tiles left!"
-        else:
-            event_msg = f"Last Action: {event_type} by P{event.get('player', '?')}"
-            if "tile" in event:
-                event_msg += f"\nTile: {self.tile_to_text(event['tile'])}"
+        event_msg = ""
+        tile_text = self.tile_to_text(event['tile']) if 'tile' in event else ""
+        player_info = f"P{event.get('player', '?')}"
 
-            if event_type in ("TSUMO", "RON"):
-                han = event.get("han")
-                fu = event.get("fu")
-                if han is not None and fu is not None:
-                    event_msg += f"\n[bold magenta]{han} Han, {fu} Fu[/bold magenta]"
-                
-                cost = event.get("cost")
-                if cost is not None:
-                    if event_type == "RON":
-                        event_msg += f"\nP{event.get('deal_in_player', '?')} pays {cost}"
-                    else:
-                        event_msg += f"\nCost: {cost}"
+        if event_type == "DRAW":
+            if "tile" not in event and event.get("draw_type") != "abortive":
+                event_msg = "[bold red]EXHAUSTIVE DRAW[/bold red] - No live tiles left!"
+            elif event.get("draw_type") == "abortive":
+                event_msg = f"[bold red]ABORTIVE DRAW[/bold red] - {event.get('reason', 'Unknown reason')}"
+            else:
+                event_msg = f"{player_info} draws."
+        
+        elif event_type == "DISCARD":
+            event_msg = f"{player_info} discards {tile_text}."
+        
+        elif event_type in ("PON", "KAN", "CHII"):
+            event_msg = f"[bold yellow]{player_info} calls {event_type} on {tile_text}![/bold yellow]"
+
+        elif event_type in ("TSUMO", "RON"):
+            action_colored = f"[bold magenta]{event_type}[/bold magenta]"
+            deal_in = f"P{event.get('deal_in_player', '?')}"
+            if event_type == "RON":
+                event_msg = f"{player_info} calls {action_colored} on {tile_text} from {deal_in}!"
+            else:
+                event_msg = f"{player_info} calls {action_colored} on {tile_text}!"
+            
+            han, fu, cost = event.get("han"), event.get("fu"), event.get("cost")
+            if han is not None and fu is not None:
+                event_msg += f"\n[bold magenta]{han} Han, {fu} Fu[/bold magenta]"
+            if cost is not None:
+                if event_type == "RON":
+                    event_msg += f"\n{deal_in} pays {cost}"
+                else:
+                    event_msg += f"\nCost: {cost}"
+        
+        elif event_type == "CALLS":
+            event_msg = "Checking for calls..."
+
+        elif event_type == "END":
+            event_msg = "[bold blue]Round Ended[/bold blue]"
+
+        else:
+            event_msg = f"Last Action: {event_type}"
 
         compass_info = f"""[bold yellow]Round Information[/bold yellow]
 Wall: {game_state.get('wall_remaining', 70)} tiles left
