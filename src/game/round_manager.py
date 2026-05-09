@@ -306,13 +306,16 @@ class RoundManager:
     def _discard_phase(self) -> dict:
         player = self._current_player()
 
-        dora_indicators = self.wall.get_dora_indicators()
-        riichi_tile = self._try_declare_riichi(player, dora_indicators)
-        if riichi_tile is None:
-            tile = player.controller.get_discard_choice(
-                player, self.get_game_state())
+        if player.riichi:
+            tile = player.last_drawn_tile
         else:
-            tile = riichi_tile
+            dora_indicators = self.wall.get_dora_indicators()
+            riichi_tile = self._try_declare_riichi(player, dora_indicators)
+            if riichi_tile is None:
+                tile = player.controller.get_discard_choice(
+                    player, self.get_game_state())
+            else:
+                tile = riichi_tile
 
         player.discard(tile)
         self.last_discard = tile
