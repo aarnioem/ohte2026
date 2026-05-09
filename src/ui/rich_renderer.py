@@ -118,23 +118,37 @@ Dora: {dora_text}
         discards = game_state.get("discards", {})
         hands = game_state.get("player_hands", {0: [], 1: [], 2: [], 3: []})
         melds = game_state.get("melds", {0: [], 1: [], 2: [], 3: []})
+        dealer_index = game_state.get("dealer_index", 0)
 
         layout["header"].update(
             Panel("", title="NotenMahjong", border_style="red", box=box.ASCII))
 
-        layout["top"].update(Panel(f"Discards:\n{self._format_discards(discards.get(2, []))}\n\nMelds:\n{self._format_melds(melds.get(2, []))}\n\nUnknown Tiles: {len(hands.get(2, []))}",
-                                   title="Player 2 (Top)",
-                                   box=box.ASCII))
+        wind_names = ["East", "South", "West", "North"]
+        player_titles = {}
+        for i in range(4):
+            offset = (i - dealer_index) % 4
+            player_titles[i] = f"P{i} ({wind_names[offset]})"
 
-        layout["left"].update(Panel(f"Discards:\n{self._format_discards(discards.get(3, []))}\n\nMelds:\n{self._format_melds(melds.get(3, []))}\n\nUnknown Tiles: {len(hands.get(3, []))}",
-                                    title="Player 3 (Left)",
-                                    box=box.ASCII))
+        top_melds_text = self._format_melds(melds.get(2, []))
+        top_text = f"Discards:\n{self._format_discards(discards.get(2, []))}" + (f"\n\nMelds:\n{top_melds_text}" if top_melds_text != "None" else "")
+        top_text += f"\n\nUnknown Tiles: {len(hands.get(2, []))}"
+        layout["top"].update(Panel(top_text, title=player_titles[2], box=box.ASCII))
 
-        layout["right"].update(Panel(f"Discards:\n{self._format_discards(discards.get(1, []))}\n\nMelds:\n{self._format_melds(melds.get(1, []))}\n\nUnknown Tiles: {len(hands.get(1, []))}",
-                                     title="Player 1 (Right)",
-                                     box=box.ASCII))
+        left_melds_text = self._format_melds(melds.get(3, []))
+        left_text = f"Discards:\n{self._format_discards(discards.get(3, []))}" + (f"\n\nMelds:\n{left_melds_text}" if left_melds_text != "None" else "")
+        left_text += f"\n\nUnknown Tiles: {len(hands.get(3, []))}"
+        layout["left"].update(Panel(left_text, title=player_titles[3], box=box.ASCII))
 
-        discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nMelds:\n{self._format_melds(melds.get(0, []))}\n\nHand:"
+        right_melds_text = self._format_melds(melds.get(1, []))
+        right_text = f"Discards:\n{self._format_discards(discards.get(1, []))}" + (f"\n\nMelds:\n{right_melds_text}" if right_melds_text != "None" else "")
+        right_text += f"\n\nUnknown Tiles: {len(hands.get(1, []))}"
+        layout["right"].update(Panel(right_text, title=player_titles[1], box=box.ASCII))
+
+        discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}"
+        bottom_melds_text = self._format_melds(melds.get(0, []))
+        if bottom_melds_text != "None":
+            discard_text += f"\n\nMelds:\n{bottom_melds_text}"
+        discard_text += "\n\nHand:"
 
         is_human_turn = game_state.get("turn") == 0
         drawn_tile = current_player.last_drawn_tile if current_player and is_human_turn else None
@@ -142,7 +156,7 @@ Dora: {dora_text}
         hand_table = self._format_hand(hands.get(0, []), drawn_tile)
 
         layout["bottom"].update(Panel(Group(discard_text, hand_table),
-                                      title="You (Bottom) - P0",
+                                      title=player_titles[0],
                                       border_style="bold green",
                                       box=box.ASCII))
 

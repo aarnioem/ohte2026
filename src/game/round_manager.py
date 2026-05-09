@@ -59,6 +59,7 @@ class RoundManager:
     def get_game_state(self) -> dict:
         return {
             "turn": self.turn_pointer,
+            "dealer_index": self.dealer_index,
             "dora_indicators": self.wall.get_dora_indicators(),
             "wall_remaining": self.wall.live_tiles(),
             "discards": {i: p.discards for i, p in enumerate(self.players)},
