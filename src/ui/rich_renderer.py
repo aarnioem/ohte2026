@@ -1,13 +1,28 @@
+import time
 from rich.console import Console, Group
 from rich.layout import Layout
 from rich.panel import Panel
 from rich.table import Table
+from rich.live import Live
 from rich import box
 
 class RichRenderer:
     def __init__(self) -> None:
         self.console = Console()
+        self.live = None
 
+    def start_live(self):
+        """Starts the live display context."""
+        self.live = Live(console=self.console, auto_refresh=False, transient=True, screen=True)
+        self.live.start()
+
+    def stop_live(self):
+        """Stops the live display context."""
+        if self.live:
+            self.live.stop()
+            self.live = None
+            if hasattr(self, '_last_layout'):
+                self.console.print(self._last_layout)
 
     def create_layout(self) -> Layout:
         """Divides the terminal into a 4-player mahjong table structure."""
@@ -15,9 +30,9 @@ class RichRenderer:
 
         layout.split_column(
             Layout(name="header", size=2),
-            Layout(name="top", size=9),
+            Layout(name="top", size=12),
             Layout(name="middle"),
-            Layout(name="bottom", size=12)
+            Layout(name="bottom", size=15)
         )
 
         layout["middle"].split_row(
@@ -111,7 +126,10 @@ Dora: {dora_text}
                                      box=box.ASCII))
 
         discard_text = f"Discards:\n{self._format_discards(discards.get(0, []))}\n\nMelds:\n{self._format_melds(melds.get(0, []))}\n\nHand:"
-        drawn_tile = current_player.last_drawn_tile if current_player else None
+        
+        is_human_turn = game_state.get("turn") == 0
+        drawn_tile = current_player.last_drawn_tile if current_player and is_human_turn else None
+        
         hand_table = self._format_hand(hands.get(0, []), drawn_tile)
 
         layout["bottom"].update(Panel(Group(discard_text, hand_table),
@@ -119,8 +137,14 @@ Dora: {dora_text}
                                       border_style="bold green",
                                       box=box.ASCII))
 
-        self.console.clear()
-        self.console.print(layout)
+        if self.live:
+            self._last_layout = layout
+            self.live.update(layout, refresh=True)
+            time.sleep(0.5)
+        else:
+            self.console.clear()
+            self.console.print(layout)
+            time.sleep(0.2)
 
     def _format_discards(self, discards: list):
         formatted = ""

@@ -106,32 +106,57 @@ class AIController(PlayerController):
 class RichController(PlayerController):
     """Controller that asks a human using a CLI that uses Rich"""
 
-    def __init__(self) -> None:
-        self.prompts = RichPrompts(RichRenderer())
+    def __init__(self, renderer: RichRenderer) -> None:
+        self.renderer = renderer
+        self.prompts = RichPrompts(self.renderer)
 
     def is_human(self) -> bool:
         return True
 
     def get_discard_choice(self, player_data, game_state):
-        return self.prompts.get_discard_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_discard_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_tsumo_choice(self, player_data, game_state):
-        return self.prompts.get_tsumo_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_tsumo_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_ron_choice(self, player_data, game_state):
-        return self.prompts.get_ron_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_ron_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_pon_choice(self, player_data, game_state):
-        return self.prompts.get_pon_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_pon_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_kan_choice(self, player_data, game_state):
-        return self.prompts.get_kan_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_kan_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_riichi_choice(self, player_data, game_state):
-        return self.prompts.get_riichi_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_riichi_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_riichi_discard_choice(self, player_data, game_state):
-        return self.prompts.get_riichi_discard_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_riichi_discard_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice
 
     def get_chii_choice(self, player_data, game_state):
-        return self.prompts.get_chii_choice(player_data, game_state)
+        self.renderer.stop_live()
+        choice = self.prompts.get_chii_choice(player_data, game_state)
+        self.renderer.start_live()
+        return choice

@@ -24,7 +24,7 @@ class RichPrompts:
             valid_choices.append("0")
 
         choice = IntPrompt.ask(
-            "\n[bold green]Your Turn[/bold green] - Choose discard index", 
+            "[bold green]Your Turn[/bold green] - Choose discard index", 
             choices=valid_choices,
             console=self._renderer.console
         )
@@ -42,7 +42,7 @@ class RichPrompts:
         tile_text = self._renderer.tile_to_text(drawn_tile)
 
         return Confirm.ask(
-            f"\n[bold yellow]TSUMO[/bold yellow] - You drew {tile_text}. Declare Tsumo?",
+            f"[bold yellow]TSUMO[/bold yellow] - You drew {tile_text}. Declare Tsumo?",
             console=self._renderer.console
         )
 
@@ -51,7 +51,7 @@ class RichPrompts:
         tile_text = self._renderer.tile_to_text(discarded_tile)
 
         return Confirm.ask(
-            f"\n[bold yellow]RON[/bold yellow] - Call Ron on {tile_text}?",
+            f"[bold yellow]RON[/bold yellow] - Call Ron on {tile_text}?",
             console=self._renderer.console
         )
 
@@ -60,7 +60,7 @@ class RichPrompts:
         tile_text = self._renderer.tile_to_text(discarded_tile)
 
         return Confirm.ask(
-            f"\n[bold cyan]PON[/bold cyan] - Call Pon on {tile_text}?",
+            f"[bold cyan]PON[/bold cyan] - Call Pon on {tile_text}?",
             console=self._renderer.console
         )
 
@@ -69,7 +69,7 @@ class RichPrompts:
         tile_text = self._renderer.tile_to_text(discarded_tile)
 
         return Confirm.ask(
-            f"\n[bold cyan]KAN[/bold cyan] - Call Kan on {tile_text}?",
+            f"[bold cyan]KAN[/bold cyan] - Call Kan on {tile_text}?",
             console=self._renderer.console
         )
 
@@ -103,7 +103,7 @@ class RichPrompts:
 
     def get_riichi_choice(self, player_data, game_state):
         return Confirm.ask(
-            "\n[bold magenta]RIICHI[/bold magenta] - Declare Riichi?",
+            "[bold magenta]RIICHI[/bold magenta] - Declare Riichi?",
             console=self._renderer.console
         )
 
@@ -137,7 +137,7 @@ class RichPrompts:
         display_str = ", ".join(display_indices) if display_indices else "-"
 
         choice = Prompt.ask(
-            f"\n[bold magenta]RIICHI[/bold magenta] - Choose discard index ({display_str}) or 'n' to skip",
+            f"[bold magenta]RIICHI[/bold magenta] - Choose discard index ({display_str}) or 'n' to skip",
             choices=valid_choices,
             console=self._renderer.console
         ).lower()
