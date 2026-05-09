@@ -21,10 +21,8 @@ Basic Japanese four player Riichi Mahjong.
 - [x] Uradora
 - Tenpai indicator that shows waits when a hand is ready
 - [x] Furiten
-    - No furiten indicator currently
-- Ryuukyoku/Exhaustive Draw points calculation
+- Ryuukyoku/Exhaustive Draw
     - [x] exhaustive draw
-    - points calculation
 - No abortive draws in the basic version
     - [x] Four kan abortive draw is necessary
 - [x] CLI

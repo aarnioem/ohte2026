@@ -21,5 +21,5 @@
 | 28.4. | 2    | Refaktorointia ja testin tekoa. UIn refaktorointia|
 | 7.5. | 4    | Riichin toteutus. Pisteiden maksu. Tsumon oikea pisteytys. |
 | 8.5. | 8    | Furitenin toteutus. Paremman UI systeemin suunnittelua ja toteutuksen aloitus. Refaktorointia. Rich UI:n toteutusta. RichPrompts luokan suunnittelua ja toteutusta. |
-| 9.5. | 3    | Rich UIn viimeistely. Koodin laadun parantelua (lint) |
-| yht   | 72   | |
+| 9.5. | 5    | Rich UIn viimeistely. Koodin laadun parantelua (lint). Arkkitehtuurikuvauksen päivitystä. Käyttöohjeiden päivitystä.  |
+| yht   | 74   | |

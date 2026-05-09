@@ -8,6 +8,8 @@ Pelin käynnistäminen:
 ```
 poetry run invoke start
 ```
+Huomio! Jotta pelin näkymä toimii oikein, on ikkunan oltava tarpeaksi suuri. Liian pienellä ikkunalla pelin renderöinti ei toimi. 
+
 
 ### Pelin tavoite
 
@@ -15,18 +17,18 @@ Riichi Mahjongissa on tavoitteena rakentaa voittavia käsiä. Voittava käsi muo
 
 #### Viskauksen valinta
 
-![viskauksen valinta](kuvat/discard.png)
+![viskauksen valinta](kuvat/table.png)
 
-Viskaus valitaan antamalla numero. Tässä ollaan viskaamassa tiili 9m.
+Viskaus valitaan antamalla numero. Numerolla 0 voidaan viskata juuri nostettu tiili.
 
 #### Setit
 
 ![chiin valinta](kuvat/chii.png)
 
-Pelaaja voi joskus vaatia toisen pelaajan viskaaman tiilen. Jos tiili sopii useampaan chii settiin, saa pelaaja valita. Pon vaadinta on pelkkä y/n prompti.
+Pelaaja voi joskus vaatia toisen pelaajan viskaaman tiilen. Jos tiili sopii useampaan chii settiin, saa pelaaja valita minkä niistä haluaa. Pon vaadinta on pelkkä y/n prompti.
 
 #### Voitto
 
 ![voiton vaadinta](kuvat/ron.png)
 
-Tässä pelaajalla on tanyao käsi. Kädessä on setit: r5m5m5m, 7p7p7p, 6p6p6p; pari :8p8p. Käsi odottaa viimeistä tiiltä settiin 6s7s, joten pelaaja voi vaatia Ronin tiilellä 5s. Voiton jälkeen peli loppuu.
+Tässä pelaajalla on voittava käsi. Voittoehdon täyttää vaadittu Chun(R) setti. Viimeinen täytettävä setti on 2p3p, eli voittavat tiilet ovat 1p ja 4p. Parina on Itätuuli(E).
