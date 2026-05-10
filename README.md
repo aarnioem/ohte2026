@@ -9,7 +9,7 @@ Peli toteuttaa yhden erän japanilaista riichi mahjongia. Riichi mahjongin sää
 [Tuntikirjanpito](dokumentaatio/tuntikirjanpito.md)  
 [Changelog](dokumentaatio/changelog.md)  
 [Arkkitehtuurikuvaus](dokumentaatio/arkkitehtuuri.md)  
-[Käyttöohje](dokumentaatio/kayttohje.md)
+[Käyttöohje](dokumentaatio/kayttohje.md)   
 [Testausdokumentti](dokumentaatio/testausdokumentti.md)
 
 ### Pelin asentaminen
