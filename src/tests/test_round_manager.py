@@ -2,17 +2,22 @@ import unittest
 from unittest.mock import patch
 from game.round_manager import RoundManager
 from core.player import Player
+from core.melds import Meld
 from core.wall import Wall
 from ui.controller import AIController
 
 class StubController(AIController):
-    def __init__(self, *, kan_choice=False, pon_choice=False, discard_choice=0) -> None:
+    def __init__(self, *, kan_choice=False, shouminkan_choice=None,
+                 pon_choice=False, discard_choice=0) -> None:
         super().__init__()
         self.kan_choice = kan_choice
+        self.shouminkan_choice = shouminkan_choice
         self.pon_choice = pon_choice
         self.discard_choice = discard_choice
 
     def get_kan_choice(self, player_data, game_state):
+        if game_state.get("call_type") == "shouminkan" and self.shouminkan_choice is not None:
+            return self.shouminkan_choice
         return self.kan_choice
 
     def get_pon_choice(self, player_data, game_state):
@@ -257,3 +262,41 @@ class TestRoundManager(unittest.TestCase):
         result = self.game._discard_phase()
 
         self.assertEqual(result, expected)
+
+
+    def test_draw_phase_performs_shouminkan_when_accepted(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        game = RoundManager(self.players, wall)
+        player = game.players[0]
+        player.controller = StubController(shouminkan_choice=True)
+
+
+        player.hand.tiles = [36, 37, 38, 72, 73, 74, 99, 102, 107, 112]
+        # pon on 1m, tile_id 3 fills out the kan
+        player.hand.melds = [
+            Meld(
+                called_tile=0,
+                tiles=[0, 1, 2],
+                from_player=1,
+                meld_type="pon",
+                open_call=True,
+            )
+        ]
+        player.hand.is_closed = False
+
+        game.turn_pointer = 0
+        game.round_phase = game.PHASE_DRAW
+        game.wall.draw_pointer = 3
+
+        event = game._draw_phase()
+
+        expected = {
+            "type": "kan",
+            "player": 0,
+            "tile": 3,
+            "call_type": "shouminkan",
+        }
+
+        self.assertEqual(event, expected)
+        self.assertEqual(player.hand.melds[0].meld_type, "kan")
+        self.assertEqual(player.hand.melds[0].tiles, [0, 1, 2, 3])
