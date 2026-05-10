@@ -5,24 +5,23 @@
 - [Terminology list](https://riichi.wiki/List_of_terminology_by_alphabetical_order)
 
 ### Purpose
-Basic Japanese four player Riichi Mahjong.
+One round simulation of Japanese four player Riichi Mahjong.
 
-### Planned features
+### Features
 - [x] User can start a match with 3 AIs
 - [x] Valid hands get scored based on the han amount. A hand is not valid unless it has a yaku.
 - [x] Yaku detection and han calculation for the most common yakus.
     - [More information on yakus here](https://riichi.wiki/List_of_yaku)
-    - Nagashi Mangan is so rare that it may be omitted from the basic version
+    - [x] Nagashi Mangan is so rare that it may be omitted from the basic version
     - [x] There is a mahjong library for python for calculating hand scores that will be used for scoring.
+    - [x] Some rare yakus are missing, such as blessing of heaven and blessing of earth, but these are incredibly rare. It is possible to play hundreds of thousands of rounds without seeing any of them.
 - [x] Chii, Pon, Kan calls
 - [x] Dora indicators
 - [x] Riichi declaration
 - [x] Uradora
-- Tenpai indicator that shows waits when a hand is ready
 - [x] Furiten
-- Ryuukyoku/Exhaustive Draw
-    - [x] exhaustive draw
-- No abortive draws in the basic version
+- [x] Ryuukyoku/Exhaustive Draw
+- [x] No abortive draws in the basic version
     - [x] Four kan abortive draw is necessary
 - [x] CLI
     - [x] more complex UI with colours using Rich

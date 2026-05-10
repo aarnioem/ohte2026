@@ -22,4 +22,5 @@
 | 7.5. | 4    | Riichin toteutus. Pisteiden maksu. Tsumon oikea pisteytys. |
 | 8.5. | 8    | Furitenin toteutus. Paremman UI systeemin suunnittelua ja toteutuksen aloitus. Refaktorointia. Rich UI:n toteutusta. RichPrompts luokan suunnittelua ja toteutusta. |
 | 9.5. | 5    | Rich UIn viimeistely. Koodin laadun parantelua (lint). Arkkitehtuurikuvauksen päivitystä. Käyttöohjeiden päivitystä.  |
-| yht   | 74   | |
+| 10.5. | 4    | Manuaalista testausta. Testausdokumenttia. Testejä. Dokumentaation viilailua |
+| yht   | 78   | |

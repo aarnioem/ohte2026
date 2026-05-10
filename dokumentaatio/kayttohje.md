@@ -4,11 +4,17 @@ Riippuvuuksien asennus:
 ```
 poetry install
 ```
+
+Jos poetry sanoo että poetry.lock pitää päivittää, sen voi tehdä komennolla:
+```
+poetry lock
+```
+
 Pelin käynnistäminen:
 ```
 poetry run invoke start
 ```
-Huomio! Jotta pelin näkymä toimii oikein, on ikkunan oltava tarpeaksi suuri. Liian pienellä ikkunalla pelin renderöinti ei toimi. 
+Huomio! Jotta pelin näkymä toimii oikein, on ikkunan oltava tarpeaksi suuri. Liian pienellä ikkunalla pelin renderöinti ei toimi. Hyvä koko voi olla esimerkiksi puolet näytöstä.
 
 
 ### Pelin tavoite
