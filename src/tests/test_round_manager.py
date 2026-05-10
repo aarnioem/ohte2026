@@ -8,11 +8,12 @@ from ui.controller import AIController
 
 class StubController(AIController):
     def __init__(self, *, kan_choice=False, shouminkan_choice=None,
-                 pon_choice=False, discard_choice=0) -> None:
+                 pon_choice=False, chii_choice=None, discard_choice=0) -> None:
         super().__init__()
         self.kan_choice = kan_choice
         self.shouminkan_choice = shouminkan_choice
         self.pon_choice = pon_choice
+        self.chii_choice = chii_choice
         self.discard_choice = discard_choice
 
     def get_kan_choice(self, player_data, game_state):
@@ -22,7 +23,14 @@ class StubController(AIController):
 
     def get_pon_choice(self, player_data, game_state):
         return self.pon_choice
-    
+
+    def get_chii_choice(self, player_data, game_state):
+        if self.chii_choice is not None:
+            return self.chii_choice
+
+        options = game_state.get("chii_options")
+        return options[0] if options else None
+
     def get_discard_choice(self, player_data, game_state):
         return self.discard_choice
 
@@ -264,7 +272,7 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
-    def test_draw_phase_performs_shouminkan_when_accepted(self):
+    def test_draw_phase_performs_shouminkan_when_accepted_and_advances_phase(self):
         wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
         game = RoundManager(self.players, wall)
         player = game.players[0]
@@ -300,3 +308,34 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(event, expected)
         self.assertEqual(player.hand.melds[0].meld_type, "kan")
         self.assertEqual(player.hand.melds[0].tiles, [0, 1, 2, 3])
+        self.assertEqual(game.round_phase, game.PHASE_RINSHAN)
+
+
+
+    def test_resolve_chii_calls_returns_correct_event_and_advances_phase(self):
+        wall = Wall(tiles=range(136), shuffle=False, dead_wall_size=14)
+        game = RoundManager(self.players, wall=wall)
+
+        game.turn_pointer = 0
+        game.last_discard = 8  # 3m
+        game.last_player_index = 0
+
+        chii_player = game.players[1]
+        chii_player.controller = StubController()
+        # valid chii on 3m
+        chii_player.hand.tiles = [0, 4, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60]
+
+        event = game._resolve_chii_calls()
+
+        expected = {
+            "type": "chii",
+            "player": 1,
+            "tile": 8,
+            }
+
+        self.assertEqual(event, expected)
+        self.assertEqual(game.turn_pointer, 1)
+        self.assertEqual(game.round_phase, game.PHASE_DISCARD)
+        self.assertEqual(chii_player.hand.melds[0].meld_type, "chii")
+        self.assertEqual(chii_player.hand.melds[0].tiles, [0, 4, 8])
+        self.assertEqual(chii_player.hand.melds[0].from_player, 0)
