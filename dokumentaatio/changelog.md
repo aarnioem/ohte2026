@@ -32,3 +32,4 @@
 - round end score payouts
 - added furiten
 - Made a completely new UI using Rich
+- upgrading pon to kan

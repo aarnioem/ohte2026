@@ -15,7 +15,6 @@ Basic Japanese four player Riichi Mahjong.
     - Nagashi Mangan is so rare that it may be omitted from the basic version
     - [x] There is a mahjong library for python for calculating hand scores that will be used for scoring.
 - [x] Chii, Pon, Kan calls
-    - daiminkan still missing
 - [x] Dora indicators
 - [x] Riichi declaration
 - [x] Uradora
@@ -28,12 +27,12 @@ Basic Japanese four player Riichi Mahjong.
 - [x] CLI
     - [x] more complex UI with colours using Rich
 
-### Possible features
+### Possible features for future development (outside the scope of the course)
 - Visible shanten counter (How many optimal draws are needed for a valid hand)
 - Ukeire counter (Number of tiles that can improve the shanten count)
 - Rule toggles for abortive draws
 - All yakus, including Nagashi Mangan
-- Choice between one or two round games
+- Multiple playable rounds.
 - Pygame interface
 - Online multiplayer
     - Some sort of statistics tracking
